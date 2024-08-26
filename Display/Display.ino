@@ -50,7 +50,7 @@ void loop() {
 
   display.clearDisplay();
   display.setTextSize(4); //se è piccolo scrivere 4 al posto di due (dovrebberp starci 2 righe sul display)
-  display.setTextColor(WHITE);
+  display.setTextColor(1);
 
   display.drawBitmap(0, 16, cuore, 16, 16, 1); //se non funziona scrivere WHITE o INVERSE al posto di 1
                                               //se è troppo attaccato al bordo modificare le coordinate (i primi due parametri sono x e y da scrivere in pixel)
@@ -66,7 +66,7 @@ void loop() {
   display.display();
 
   display.setTextSize(4); //se è piccolo scrivere 4 al posto di due (dovrebberp starci 2 righe sul display)
-  display.setTextColor(WHITE);
+  display.setTextColor(1);
 
   display.setCursor(0,32);  //vai a capo (se coordinate non giuste modificare)
   display.print("Sp02: ");
