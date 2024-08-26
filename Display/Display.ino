@@ -68,7 +68,7 @@ void loop() {
   display.setTextSize(4); //se è piccolo scrivere 4 al posto di due (dovrebberp starci 2 righe sul display)
   display.setTextColor(WHITE);
 
-  display.setCursor(0,40);  //vai a capo (se coordinate non giuste modificare)
+  display.setCursor(0,32);  //vai a capo (se coordinate non giuste modificare)
   display.print("Sp02: ");
 
   if(sp02 < 80){
