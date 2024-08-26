@@ -26,6 +26,9 @@ int sp02 = 99;     //valore casuale per prova
 long oldpos;
 long pos = 1;
 
+bool batt = false;
+bool oss = false;
+
 static const unsigned char cuore[] =  //disegno cuore
   { 0b00000000, 0b00000000,
     0b00011100, 0b00111000,
@@ -80,7 +83,7 @@ void visualizzabattiti() {
 }
 
 void visualizzasp02() {
-  
+
   display.clearDisplay();
   display.setTextSize(8);
   display.setTextColor(1);
@@ -103,10 +106,22 @@ void loop() {
   oldpos = pos;
   pos = enc.read();
 
-  if(oldpos > pos){ //senso orario
-    visualizzabattiti();
-  } else if (oldpos < pos) {
-    visualizzasp02();
+  if (oldpos == pos) {
+    if (batt == true) {
+      visualizzabattiti();
+    } else if (oss == true) {
+      visualizzasp02();
+    }
   }
 
+  batt = false;
+  oss = false;
+
+  if (oldpos > pos) {  //senso orario
+    visualizzabattiti();
+    batt = true;
+  } else if (oldpos < pos) {
+    visualizzasp02();
+    oss = true;
+  }
 }
