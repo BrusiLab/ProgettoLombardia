@@ -49,10 +49,10 @@ void setup() {
 void loop() {
 
   display.clearDisplay();
-  display.setTextSize(2); //se è piccolo scrivere 4 al posto di due (dovrebberp starci 2 righe sul display)
+  display.setTextSize(4); //se è piccolo scrivere 4 al posto di due (dovrebberp starci 2 righe sul display)
   display.setTextColor(WHITE);
 
-  display.drawBitmap(0, 0, cuore, 32, 32, 1); //se non funziona scrivere WHITE o INVERSE al posto di 1
+  display.drawBitmap(0, 16, cuore, 16, 16, 1); //se non funziona scrivere WHITE o INVERSE al posto di 1
                                               //se è troppo attaccato al bordo modificare le coordinate (i primi due parametri sono x e y da scrivere in pixel)
 
   display.setCursor(40,0);  //lascai un po' di spazio dopo il cuore
@@ -64,6 +64,9 @@ void loop() {
   }
   
   display.display();
+
+  display.setTextSize(4); //se è piccolo scrivere 4 al posto di due (dovrebberp starci 2 righe sul display)
+  display.setTextColor(WHITE);
 
   display.setCursor(0,40);  //vai a capo (se coordinate non giuste modificare)
   display.print("Sp02: ");
