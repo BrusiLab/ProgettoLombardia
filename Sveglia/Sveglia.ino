@@ -56,11 +56,7 @@ void suona(int nota, float tempo) {
 }
 
 void stop() {
-  /*if (digitalRead(disinnesco) == true) {
-    fermati = true;
-  }*/
-
-  if (Serial.read() == 'a') {
+  if (digitalRead(disinnesco) == true) {
     fermati = true;
   }
 }
