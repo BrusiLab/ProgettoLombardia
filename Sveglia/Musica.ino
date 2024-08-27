@@ -104,28 +104,55 @@ void sveglia() {
 }
 
 void allarme() {
-  
-  while (fermati != true && pericolo == true) {
 
-    tone(buzzer, frq, 500);
-    stop();
-    tone(buzzer, frq, 500);
+  if (fermati != true && pericolo == true) {
 
-    digitalWrite(led, HIGH);
-    delay(200);
-    stop();
-    digitalWrite(led, LOW);
-    delay(200);
-    stop();
+    for (secondi = 30; secondi > 0; secondi--) {
 
-    digitalWrite(led, HIGH);
-    delay(200);
-    stop();
-    digitalWrite(led, LOW);
-    delay(200);
-    stop();
+      tone(buzzer, frq, 200);
+      stop();
+      tone(buzzer, frq, 200);
+      stop();
+
+      digitalWrite(led, HIGH);
+      delay(150);
+      stop();
+      digitalWrite(led, LOW);
+      delay(150);
+      stop();
+
+      digitalWrite(led, HIGH);
+      delay(150);
+      stop();
+      digitalWrite(led, LOW);
+      delay(150);
+      stop();
+    }
+
+    //invia allarme
+
+    while (fermati != true && pericolo == true) {
+
+      tone(buzzer, frq, 500);
+      stop();
+      tone(buzzer, frq, 500);
+
+      digitalWrite(led, HIGH);
+      delay(200);
+      stop();
+      digitalWrite(led, LOW);
+      delay(200);
+      stop();
+
+      digitalWrite(led, HIGH);
+      delay(200);
+      stop();
+      digitalWrite(led, LOW);
+      delay(200);
+      stop();
+    }
+
+    pericolo = false;
+    fermati = false;
   }
-
-  pericolo = false;
-  fermati = false;
 }
