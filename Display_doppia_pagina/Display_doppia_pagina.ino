@@ -31,9 +31,6 @@ bool oss = false;
 
 int modalita = 0;
 
-unsigned long t1, dt; //timer non bloccante
-#define tnb 5000
-
 static const unsigned char cuore[] =  //disegno cuore
   { 0b00000000, 0b00000000,
     0b00011100, 0b00111000,
@@ -51,6 +48,21 @@ static const unsigned char cuore[] =  //disegno cuore
     0b00000011, 0b11000000,
     0b00000001, 0b10000000,
     0b00000000, 0b00000000 };
+
+int mytimer(int timer1) {  //timer non bloccante
+
+  static unsigned long t1, dt;
+  int ret = 0;
+
+  dt = millis() - t1;
+
+  if (dt >= timer1) {
+    t1 = millis();
+    ret = 1;
+  }
+
+  return ret;
+}
 
 void visualizzabastone() {
 
@@ -128,12 +140,6 @@ void setup() {
   while (modalita == 0) {  //finché non selezioni la modalità desiderata
     cambiamodalita();
   }
-
-  if (modalita == 1) {
-#define bastone
-  } else if (modalita == 2) {
-#define deambulatore
-  }
 }
 
 void visualizzabattiti() {
@@ -181,11 +187,7 @@ void loop() {
 
   if (oldpos == pos) {  //se non cambio schermata visualizzo quella che c'era prima aggiornando i dati
 
-    dt = millis() - t1;
-
-    if (dt >= tnb) {  //timer non bloccante ogni quanto aggioranare display
-
-      t1 = millis();
+    if (mytimer(5000)) {  //timer non bloccante ogni quanto aggioranare display
 
       if (batt == true) {
         visualizzabattiti();
@@ -199,10 +201,21 @@ void loop() {
   oss = false;
 
   if (oldpos > pos) {  //senso orario
+
     visualizzabattiti();
     batt = true;
+
   } else if (oldpos < pos) {
+
     visualizzasp02();
     oss = true;
+    
+  } else if (!digitalRead(sw)) {
+
+    modalita = 0;
+
+    while (modalita == 0) {
+      cambiamodalita();
+    }
   }
 }
