@@ -17,9 +17,9 @@ MPU6050 accelgyro;
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 
-bool caduta = false;
+bool pericolo = false;
 
-int modalita;
+int modalita = 0;
 
 void setup() {
 
@@ -96,7 +96,7 @@ void loop() {
 #ifdef bastone //sfrutta giroscopio, accelerometro e laccio
 
   if ((gx < -45 || gx > 45 || gy < -45 || gy > 45) && (ax < -soglia || ax > soglia || ay < -soglia || ay > soglia) && (digitalRead(laccio) == 1)){
-    caduta = true;
+    pericolo = true;
   }
 
 #endif
@@ -104,11 +104,11 @@ void loop() {
 #ifdef deambulatore //sfrutta laccio
 
   if (digitalRead(laccio) == 0) {
-    caduta = true;
+    pericolo = true;
   }
 
 #endif
 
-  Serial.println(caduta);
+  Serial.println(pericolo);
   delay(100);
 }
