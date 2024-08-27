@@ -29,6 +29,11 @@ long pos = 1;
 bool batt = false;
 bool oss = false;
 
+int modalita = 0;
+
+unsigned long t1, dt; //timer non bloccante
+#define tnb 5000
+
 static const unsigned char cuore[] =  //disegno cuore
   { 0b00000000, 0b00000000,
     0b00011100, 0b00111000,
@@ -47,20 +52,88 @@ static const unsigned char cuore[] =  //disegno cuore
     0b00000001, 0b10000000,
     0b00000000, 0b00000000 };
 
+void visualizzabastone() {
+
+  display.clearDisplay();
+  display.setTextSize(8);
+  display.setTextColor(1);
+
+  display.print("BASTONE");  //scrivi bastone a schermo
+  display.display();
+
+  oldpos = pos;
+  pos = enc.read();
+
+  while (oldpos >= pos) {  //se non cambia niente o visualizzeresti ancora bastone
+
+    if (!digitalRead(sw)) {  //se premi imposti quella modalita
+      modalita = 1;
+    }
+
+    oldpos = pos;
+    pos = enc.read();
+  }
+}
+
+void visualizzadeambulatore() {  //come il bastone
+
+  display.clearDisplay();
+  display.setTextSize(8);
+  display.setTextColor(1);
+
+  display.print("DEAMBLUATORE");
+  display.display();
+
+  oldpos = pos;
+  pos = enc.read();
+
+  while (oldpos <= pos) {
+
+    if (!digitalRead(sw)) {
+      modalita = 2;
+    }
+
+    oldpos = pos;
+    pos = enc.read();
+  }
+}
+
+void cambiamodalita() {
+
+  oldpos = pos;
+  pos = enc.read();
+
+  if (oldpos > pos) {  //senso orario
+    visualizzabastone();
+  } else if (oldpos < pos) {
+    visualizzadeambulatore();
+  }
+}
+
 void setup() {
 
   Serial.begin(9600);
 
-  /*if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println("Error");
     while (true)
       ;
   }
 
   display.display();
-  display.clearDisplay();*/
+  display.clearDisplay();
 
   pinMode(sw, INPUT_PULLUP);
+
+  while (modalita == 0) {  //finché non selezioni la modalità desiderata
+    cambiamodalita();
+  }
+
+  if (modalita == 1) {
+#define bastone
+  } else if (modalita == 2) {
+#define deambulatore
+  }
 }
 
 void visualizzabattiti() {
@@ -106,11 +179,19 @@ void loop() {
   oldpos = pos;
   pos = enc.read();
 
-  if (oldpos == pos) {
-    if (batt == true) {
-      visualizzabattiti();
-    } else if (oss == true) {
-      visualizzasp02();
+  if (oldpos == pos) {  //se non cambio schermata visualizzo quella che c'era prima aggiornando i dati
+
+    dt = millis() - t1;
+
+    if (dt >= tnb) {  //timer non bloccante ogni quanto aggioranare display
+
+      t1 = millis();
+
+      if (batt == true) {
+        visualizzabattiti();
+      } else if (oss == true) {
+        visualizzasp02();
+      }
     }
   }
 
