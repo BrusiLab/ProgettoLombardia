@@ -40,63 +40,64 @@ void suona(int nota, float tempo) {
 
 void sveglia() {
 
-  while (fermati != true && orario == true) {
+  while (orario == true) {
 
     digitalWrite(led, HIGH);
 
-    suona(MI, 0.5);
+    suona(MI, 0.4);
     stop();
+    if (fermati) { break; }
     digitalWrite(led, LOW);
 
-    suona(RE, 0.5);
-    stop();
+    suona(RE, 0.4);
+    if (stop()) { break; }
     digitalWrite(led, HIGH);
 
-    suona(fa, 1);
-    stop();
+    suona(fa, 0.9);
+    if (stop()) { break; }
     digitalWrite(led, LOW);
 
-    suona(sol, 1);
-    stop();
+    suona(sol, 0.9);
+    if (stop()) { break; }
     digitalWrite(led, HIGH);
 
-    suona(DO, 0.5);
-    stop();
+    suona(DO, 0.4);
+    if (stop()) { break; }
     digitalWrite(led, LOW);
 
-    suona(si, 0.5);
-    stop();
+    suona(si, 0.4);
+    if (stop()) { break; }
     digitalWrite(led, HIGH);
 
-    suona(re, 1);
-    stop();
+    suona(re, 0.9);
+    if (stop()) { break; }
     digitalWrite(led, LOW);
 
-    suona(mi, 1);
-    stop();
+    suona(mi, 0.9);
+    if (stop()) { break; }
     digitalWrite(led, HIGH);
 
-    suona(si, 0.5);
-    stop();
+    suona(si, 0.4);
+    if (stop()) { break; }
     digitalWrite(led, LOW);
 
-    suona(la, 0.5);
-    stop();
+    suona(la, 0.4);
+    if (stop()) { break; }
     digitalWrite(led, HIGH);
 
-    suona(Do, 1);
-    stop();
+    suona(Do, 0.9);
+    if (stop()) { break; }
     digitalWrite(led, LOW);
 
-    suona(mi, 1);
-    stop();
+    suona(mi, 0.9);
+    if (stop()) { break; }
     digitalWrite(led, HIGH);
 
-    suona(la, 3);
-    stop();
+    suona(la, 2.7);
+    if (stop()) { break; }
     digitalWrite(led, LOW);
 
-    stop();
+    if (stop()) { break; }
   }
 
   orario = false;
@@ -105,51 +106,70 @@ void sveglia() {
 
 void allarme() {
 
-  if (fermati != true && pericolo == true) {
+  if (pericolo == true) {
 
-    for (secondi = 30; secondi > 0; secondi--) {
+    for (int secondi = 30; secondi > 0; secondi--) {
 
-      tone(buzzer, frq, 200);
-      stop();
-      tone(buzzer, frq, 200);
-      stop();
-
-      digitalWrite(led, HIGH);
-      delay(150);
-      stop();
-      digitalWrite(led, LOW);
-      delay(150);
-      stop();
+      tone(buzzer, frq, 190);
+      if (stop()) { break; }
+      tone(buzzer, frq, 190);
+      if (stop()) { break; }
 
       digitalWrite(led, HIGH);
-      delay(150);
-      stop();
+      delay(130);
+      if (stop()) { break; }
       digitalWrite(led, LOW);
-      delay(150);
-      stop();
+      delay(130);
+      if (stop()) { break; }
+
+      digitalWrite(led, HIGH);
+      delay(130);
+      if (stop()) { break; }
+      digitalWrite(led, LOW);
+      delay(130);
+      if (stop()) { break; }
+
+      tone(buzzer, frq, 190);
+      if (stop()) { break; }
+      tone(buzzer, frq, 190);
+      if (stop()) { break; }
+
+      digitalWrite(led, HIGH);
+      delay(130);
+      if (stop()) { break; }
+      digitalWrite(led, LOW);
+      delay(130);
+      if (stop()) { break; }
+
+      digitalWrite(led, HIGH);
+      delay(130);
+      if (stop()) { break; }
+      digitalWrite(led, LOW);
+      delay(130);
+      if (stop()) { break; }
     }
 
     //invia allarme
 
-    while (fermati != true && pericolo == true) {
+    while (pericolo == true) {
 
       tone(buzzer, frq, 500);
-      stop();
+      if (stop()) { break; }
       tone(buzzer, frq, 500);
 
       digitalWrite(led, HIGH);
       delay(200);
-      stop();
+      if (stop()) { break; }
       digitalWrite(led, LOW);
       delay(200);
-      stop();
+      if (stop()) { break; }
 
       digitalWrite(led, HIGH);
       delay(200);
-      stop();
+      if (stop()) { break; }
       digitalWrite(led, LOW);
       delay(200);
-      stop();
+      if (stop()) { break; }
     }
 
     pericolo = false;
