@@ -29,7 +29,7 @@ uint16_t fifoCount;      // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64];  // FIFO storage buffer
 
 // orientation/motion vars
-Quaternion q;         // [w, x, y, z]         quaternion container
+Quaternion q;  // [w, x, y, z]         quaternion container
 
 //accelerazione
 VectorInt16 aa;       // [x, y, z]            accel sensor measurements
@@ -37,8 +37,8 @@ VectorInt16 aaReal;   // [x, y, z]            gravity-free accel sensor measurem
 VectorInt16 aaWorld;  // [x, y, z]            world-frame accel sensor measurements
 VectorFloat gravity;  // [x, y, z]            gravity vector
 
-float euler[3];       // [psi, theta, phi]    Euler angle container
-float ypr[3];         // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+float euler[3];  // [psi, theta, phi]    Euler angle container
+float ypr[3];    // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 float gx, gy, gz;
 
@@ -56,7 +56,7 @@ void dmpDataReady() {
   mpuInterrupt = true;
 }
 
-void inizializzaGyro(){
+void inizializzaGyro() {
   // initialize device
   Serial.println(F("Initializing I2C devices..."));
   mpu.initialize();
@@ -94,7 +94,7 @@ void inizializzaGyro(){
 
     // get expected DMP packet size for later comparison
     packetSize = mpu.dmpGetFIFOPacketSize();
-    
+
   } else {
     // ERROR!
     // 1 = initial memory load failed
@@ -119,19 +119,18 @@ void setup() {
   Serial.begin(115200);
 
   while (!Serial)
-    ;  
+    ;
 
   inizializzaGyro();
 
   pinMode(13, OUTPUT);
-
 }
 
 // ================================================================
 // ===                    MAIN PROGRAM LOOP                     ===
 // ================================================================
 
-void loop() {
+void rileva_caduta() {
   // if programming failed, don't try to do anything
   if (!dmpReady) return;
   // read a packet from FIFO
@@ -149,7 +148,7 @@ void loop() {
     Serial.print("\t");
     Serial.println(euler[2] * 180 / M_PI);
     //gx = euler[2] * 180 / M_PI;
-    
+
 #ifdef OUTPUT_READABLE_YAWPITCHROLL
     // display Euler angles in degrees
     mpu.dmpGetQuaternion(&q, fifoBuffer);
@@ -160,7 +159,7 @@ void loop() {
     gy = ypr[0] * 180 / M_PI;
     Serial.print(gy);
     Serial.print("\t");
-    
+
     gz = ypr[1] * 180 / M_PI;
     Serial.print(gz);
     Serial.print("\t");
@@ -183,16 +182,19 @@ void loop() {
     Serial.println(aaReal.z);
 #endif
 
-    if (gx <= -45 || gy >= 75 || gy <= -70){
+    if (gx <= -45 || gy >= 75 || gy <= -70) {
       caduta = true;
       digitalWrite(13, HIGH);
       delay(500);
       digitalWrite(13, LOW);
-      Serial.println("CADUTOOOOOOOOOOOOOO");  
+      Serial.println("CADUTOOOOOOOOOOOOOO");
     }
-
   }
+}
 
+void loop() {
+
+  rileva_caduta();
   Serial.println();
   delay(50);
 }

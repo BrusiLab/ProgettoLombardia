@@ -54,14 +54,16 @@ void suona(int nota, float tempo) {
 
 void sveglia() {
 
-  display.clearBuffer();
+  if (orario == true) {
+    display.clearBuffer();
 
-  display.setFont(u8g2_font_timB14_tr);
+    display.setFont(u8g2_font_timB14_tr);
 
-  display.drawStr(2, 25, "Promemoria");
-  display.drawStr(2, 57, "medicine");
+    display.drawStr(2, 25, "Promemoria");
+    display.drawStr(2, 57, "medicine");
 
-  display.sendBuffer();
+    display.sendBuffer();
+  }
 
   while (orario == true) {
 
@@ -187,16 +189,16 @@ void allarme() {
 
     //invia allarme
 
+    display.clearBuffer();
+
+    display.setFont(u8g2_font_timB14_tr);
+
+    display.drawStr(2, 25, "ALLARME");
+    display.drawStr(22, 57, "inviato avviso");
+
+    display.sendBuffer();
+
     while (pericolo == true) {
-
-      display.clearBuffer();
-
-      display.setFont(u8g2_font_timB14_tr);
-
-      display.drawStr(2, 25, "ALLARME");
-      display.drawStr(22, 57, "inviato avviso");
-
-      display.sendBuffer();
 
       tone(buzzer, frq, 500);
       if (stop()) { break; }

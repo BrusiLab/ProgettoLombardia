@@ -63,7 +63,7 @@ void posizione(){
 
     Serial.print(" SAT=");
     Serial.println(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-  }
+  }    
 
   gps.stats(&chars, &sentences, &failed);
 

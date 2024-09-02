@@ -28,9 +28,6 @@ void inizializzaBattiti() {
   }
 
   Serial.println(F("Attach sensor to finger with rubber band. Press any key to start conversion"));
-  while (Serial.available() == 0)
-    ;  //wait until user presses a key
-  Serial.read();
 
   byte ledBrightness = 60;  //Options: 0=Off to 255=50mA
   byte sampleAverage = 4;   //Options: 1, 2, 4, 8, 16, 32

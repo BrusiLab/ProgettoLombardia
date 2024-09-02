@@ -36,14 +36,14 @@
 #define buzzer 9
 #define led 10
 //Caduta
-#define laccio 13  //colleghi cavo da 5v a pin
+#define laccio 13        //colleghi cavo da 5v a pin
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
 //Gps
 #define TX 1
 #define RX 0
 //Ossigenazione
-#define pulseLED 11 //Must be on PWM pin
-#define readLED 12 //Blinks with each data read
+#define pulseLED 11  //Must be on PWM pin
+#define readLED 12   //Blinks with each data read
 //Qualità aria
 #define pinCO A2
 #define pinNH3 A1
@@ -80,11 +80,11 @@ int primo = 0;
 
 bool premutoenc = false;
 
-bool orario;            //attivato a ora sveglia
+bool orario = false;    //attivato a ora sveglia
 bool pericolo = false;  //attivato da pulsante emergenza o caduta
 bool fermati;           //attivato da disinnesco -> ferma sveglia e allarme
 
-void emergency(){
+void emergency() {
   if (digitalRead(emergenza) == true) {
     pericolo = true;
   }
@@ -94,7 +94,19 @@ void emergency(){
 void setup() {
 
   Serial.begin(9600);
+
+  while (!Serial)
+    ;
+
+#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+  Wire.begin();
+  //Wire.setClock(400000);  // 400kHz I2C clock. Comment this line if having compilation difficulties
+#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
+  Fastwire::setup(400, true);
+#endif
+
   ss.begin(9600);
+
   display.begin();
 
   pinMode(sw, INPUT_PULLUP);
@@ -109,13 +121,11 @@ void setup() {
   pinMode(pulseLED, OUTPUT);
   pinMode(readLED, OUTPUT);
 
-  Wire.begin();
-
-  inizializzaBattiti();
+  //inizializzaBattiti();
 
   inizializzaGyro();
 
-  cambia_modalita();
+  //cambia_modalita();
 }
 
 void loop() {
@@ -126,7 +136,7 @@ void loop() {
   if (oldpos == pos) {  //se non cambio schermata visualizzo quella che c'era prima aggiornando i dati
 
     if (batt == true) {
-      visualizza_ancora_battiti();
+      //visualizza_ancora_battiti();
     } else if (tmp == true) {
       visualizza_ancora_temperatura();
     } else if (data == true) {
@@ -140,17 +150,17 @@ void loop() {
   tmp = false;
   data = false;
 
-  if (pos >=-10 && pos <= 10) {  //senso orario
+  if (pos >= -10 && pos <= 10) {  //senso orario
 
-    visualizza_battiti();
-    batt = true;
+    //visualizza_battiti();
+    //batt = true;
 
-  } else if (pos < - 10) {
+  } else if (pos < -10) {
 
     visualizza_temperatura();
     tmp = true;
 
-  } else if (pos > 10){
+  } else if (pos > 10) {
 
     visualizza_data();
     data = true;
@@ -166,14 +176,14 @@ void loop() {
 
   verifica_caduta();
 
-  if(timergps(600000)){
+  if (timergps(60000)) {
     posizione();
   }
-  
-  if(timeraria(600000)){
+
+  if (timeraria(60000)) {
     rileva_aria();
   }
-  
+
   sveglia();
   allarme();
 
