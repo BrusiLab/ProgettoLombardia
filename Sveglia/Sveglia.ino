@@ -31,10 +31,6 @@ int stop() {
   return fermati;
 }
 
-void stop_bool(){
-
-}
-
 void loop() {
 
   if (digitalRead(emergenza) == true){
