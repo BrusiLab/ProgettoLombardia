@@ -14,7 +14,7 @@
 #include <I2Cdev.h>
 
 #define clock 2
-#define dt 3
+#define encdt 3
 #define sw 4
 #define temp 13
 
@@ -46,13 +46,9 @@ int unavolta = 0;
 bool batt = true;
 bool tmp = false;
 bool bast = false;
+bool data = false;
 
 bool premutoenc = false;
-
-byte temperature = 0;
-char tempstr[3];
-byte humidity = 0;
-char humstr[3];
 
 int modalita = 0;
 int temporanea = 0;
@@ -102,21 +98,31 @@ void loop() {
       visualizza_ancora_battiti();
     } else if (tmp == true) {
       visualizza_ancora_temperatura();
+    } else if (data == true) {
+      visualizza_ancora_data();
     }
   }
 
   batt = false;
   tmp = false;
+  data = false;
 
-  if (oldpos > pos) {  //senso orario
+  Serial.println(pos);
+
+  if (pos >=-10 && pos <= 10) {  //senso orario
 
     visualizza_battiti();
     batt = true;
 
-  } else if (oldpos < pos) {
+  } else if (pos < - 10) {
 
     visualizza_temperatura();
     tmp = true;
+
+  } else if (pos > 10){
+
+    visualizza_data();
+    data = true;
 
   } else if (premuto()) {
 

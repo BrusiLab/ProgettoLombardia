@@ -2,8 +2,35 @@ float lat = 0.0;
 float lon = 0.0;
 unsigned long age;
 
+int timergps(int ognitot) {  //timer non bloccante
+
+  static unsigned long partenza = 0;
+  static unsigned long trascorso;
+  int voila = 0;
+
+  emergency();
+
+  trascorso = millis() - partenza;
+
+  if (trascorso >= ognitot) {
+    partenza = millis();
+    voila = 1;
+  }
+
+  return voila;
+}
+
 void posizione(){
 
+  display.clearBuffer();
+
+  display.setFont(u8g2_font_timB14_tr);
+
+  display.drawStr(2, 25, "Rilevazione");
+  display.drawStr(2, 57, "posizione...");
+
+  display.sendBuffer();
+  
   bool newData = false;
   unsigned long chars;
   unsigned short sentences, failed;

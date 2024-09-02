@@ -8,6 +8,24 @@
 int co, nh3;
 float no2, ozono;
 
+int timeraria(int ogni) {  //timer non bloccante
+
+  static unsigned long inizio = 0;
+  static unsigned long passato;
+  int uscita = 0;
+
+  emergency();
+
+  passato = millis() - inizio;
+
+  if (passato >= ogni) {
+    inizio = millis();
+    uscita = 1;
+  }
+
+  return uscita;
+}
+
 void rileva_aria(){
   co = map (analogRead(pinCO), 0, 1023, 1, 1000);
   nh3 = map (analogRead(pinNH3), 0, 1023, 1, 500);

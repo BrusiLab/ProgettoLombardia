@@ -39,20 +39,77 @@ const byte goccia[32] PROGMEM =  //disegno cuore
 const byte sole[32] PROGMEM =  //disegno cuore
 
   { B00000000, B00000000,
-    B01000000, B00000100,
-    B10011000, B00100100,
-    B10100000, B00010010,
-    B11000010, B00001011,
-    B11101000, B01100111,
-    B11110010, B00011111,
-    B11111100, B00001111,
-    B11110000, B00111111,
-    B11111000, B01001111,
-    B11100110, B00010111,
-    B11010000, B00100011,
-    B01001000, B00000101,
-    B00100100, B00011001,
-    B00100000, B00000010,
+    B00100000, B00000100,
+    B01000100, B00100010,
+    B01001000, B00010010,
+    B11010000, B00001011,
+    B11100010, B01000111,
+    B11111100, B00111111,
+    B11110000, B00000111,
+    B11110000, B00000111,
+    B11111100, B00111111,
+    B11100010, B01000111,
+    B11010000, B00001011,
+    B01001000, B00010010,
+    B01000100, B00100010,
+    B00100000, B00000100,
+    B00000000, B00000000 };
+
+const byte orologio[32] PROGMEM =  //disegno cuore
+
+  { B00000000, B00000000,
+    B11000000, B00000011,
+    B00110000, B00001100,
+    B00001000, B00010000,
+    B00000100, B00100000,
+    B10000100, B00100000,
+    B10000010, B01000000,
+    B10000010, B01000000,
+    B10000010, B01000000,
+    B00000010, B01000001,
+    B00000100, B00100010,
+    B00000100, B00100000,
+    B00001000, B00010000,
+    B00110000, B00001100,
+    B11000000, B00000011,
+    B00000000, B00000000 };
+
+const byte campana[32] PROGMEM =  //disegno cuore
+
+  { B00000000, B00000000,
+    B10000000, B00000001,
+    B01000000, B00000010,
+    B00100000, B00000100,
+    B00010000, B00001000,
+    B00010000, B00001000,
+    B00010000, B00001000,
+    B00010000, B00001000,
+    B00010000, B00001000,
+    B00010000, B00001000,
+    B00001000, B00010000,
+    B00001000, B00010000,
+    B00000100, B00100000,
+    B11111100, B00111111,
+    B10000000, B00000001,
+    B10000000, B00000001 };
+
+const byte calendario[32] PROGMEM =  //disegno cuore
+
+  { B00000000, B00000000,
+    B11111100, B00111111,
+    B00000100, B00100000,
+    B11100100, B00100111,
+    B00000100, B00100000,
+    B11111100, B00111111,
+    B00000100, B00100000,
+    B00000100, B00100001,
+    B10000100, B00100001,
+    B01000100, B00100001,
+    B00000100, B00100001,
+    B00000100, B00100001,
+    B00000100, B00100001,
+    B00000100, B00100000,
+    B11111100, B00111111,
     B00000000, B00000000 };
 
 void visualizza_bastone() {
@@ -147,6 +204,8 @@ void cambia_modalita() {
     Serial.println(modalita);
   }
 
+  Serial.println(modalita);
+
   primo = 0;
   batt = true;
 }
@@ -204,19 +263,19 @@ void visualizza_temperatura() {
 
   display.setFont(u8g2_font_timB18_tr);
 
-  display.drawXBMP(2, 11, 16, 16, sole);
+  display.drawXBMP(2, 9, 16, 16, sole);
 
   itoa((int)temperature, tempstr, 10);
-  display.drawStr(25, 25, tempstr);
+  display.drawStr(50, 25, tempstr);
 
-  display.drawStr(60, 25, "C");
+  display.drawStr(100, 25, "C");
 
-  display.drawXBMP(2, 43, 16, 16, goccia);
+  display.drawXBMP(2, 41, 16, 16, goccia);
 
   itoa((int)humidity, humstr, 10);
-  display.drawStr(25, 57, humstr);
+  display.drawStr(50, 57, humstr);
 
-  display.drawStr(60, 57, "%");
+  display.drawStr(100, 57, "%");
 
   Serial.print("Temp: ");
   Serial.println(tempstr);
@@ -227,9 +286,47 @@ void visualizza_temperatura() {
   display.sendBuffer();
 }
 
+void visualizza_data() {
+
+  display.clearBuffer();
+
+  display.setFont(u8g2_font_timB14_tr);
+
+  display.drawXBMP(2, 11, 16, 16, orologio);
+
+  itoa(ore, orestr, 10);
+  display.drawStr(19, 25, orestr);
+  display.drawStr(37, 23, ":");
+  itoa(minuti, minstr, 10);
+  display.drawStr(44, 25, minstr);
+
+  display.drawXBMP(66, 11, 16, 16, campana);
+
+  itoa(oresveglia, svorestr, 10);
+  display.drawStr(83, 25, svorestr);
+  display.drawStr(101, 23, ":");
+  itoa(minutisveglia, svminstr, 10);
+  display.drawStr(108, 25, svminstr);
+
+  display.setFont(u8g2_font_timB18_tr);
+
+  display.drawXBMP(2, 42, 16, 16, calendario);
+
+  itoa(giorno, ggstr, 10);
+  display.drawStr(19, 57, ggstr);
+  display.drawStr(42, 57, "/");
+  itoa(mese, mesestr, 10);
+  display.drawStr(49, 57, mesestr);
+  display.drawStr(72, 57, "/");
+  itoa(anno, annostr, 10);
+  display.drawStr(79, 57, annostr);
+
+  display.sendBuffer();
+}
+
 void visualizza_ancora_battiti() {
 
-  while (oldpos >= pos) {
+  while (pos >=-10 && pos <= 10) {
 
     oldpos = pos;
     pos = enc.read();
@@ -249,12 +346,14 @@ void visualizza_ancora_battiti() {
       bast = true;
       cambia_modalita();
     }
+
+    Serial.println(pos);
   }
 }
 
 void visualizza_ancora_temperatura() {
 
-  while (oldpos <= pos) {
+  while (pos < -10) {
 
     oldpos = pos;
     pos = enc.read();
@@ -270,6 +369,29 @@ void visualizza_ancora_temperatura() {
     if (premuto()) {
       modalita = 0;
       bast = true;
+      cambia_modalita();
+    }
+  }
+}
+
+void visualizza_ancora_data() {
+
+  while (pos > 10) {
+
+    oldpos = pos;
+    pos = enc.read();
+
+    if (primo == 0) {
+      visualizza_ancora_battiti();
+    } else {
+      if (mytimer(1000)) {
+        visualizza_data();
+      }
+    }
+
+    if (premuto()) {
+      modalita = 0;
+      data = true;
       cambia_modalita();
     }
   }

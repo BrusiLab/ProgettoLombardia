@@ -31,6 +31,7 @@ long pos = 1;
 bool batt = true;
 bool tmp = false;
 bool bast = false;
+bool data = false;
 
 bool premutoenc = false;
 
@@ -42,6 +43,23 @@ char humstr[3];
 int modalita = 0;
 int temporanea = 0;
 int primo = 0;
+
+int ore = 10;
+char orestr[3];
+int minuti = 55;
+char minstr[3];
+
+int giorno = 10;
+char ggstr[3];
+int mese = 11;
+char mesestr[3];
+int anno = 2024;
+char annostr[3];
+
+int minutisveglia = 30;
+char svminstr[3];
+int oresveglia = 10;
+char svorestr[3];
 
 int premuto(){
 
@@ -93,21 +111,31 @@ void loop() {
       visualizza_ancora_battiti();
     } else if (tmp == true) {
       visualizza_ancora_temperatura();
+    } else if (data == true) {
+      visualizza_ancora_data();
     }
   }
 
   batt = false;
   tmp = false;
+  data = false;
 
-  if (oldpos > pos) {  //senso orario
+  Serial.println(pos);
+
+  if (pos >=-10 && pos <= 10) {  //senso orario
 
     visualizza_battiti();
     batt = true;
 
-  } else if (oldpos < pos) {
+  } else if (pos < - 10) {
 
     visualizza_temperatura();
     tmp = true;
+
+  } else if (pos > 10){
+
+    visualizza_data();
+    data = true;
 
   } else if (premuto()) {
 

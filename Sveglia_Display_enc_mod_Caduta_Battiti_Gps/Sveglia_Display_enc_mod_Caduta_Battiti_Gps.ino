@@ -3,6 +3,7 @@
 //hardare enc: pin ai pin dichiarati, + a 5V e - a gnd
 //numeri scalano di 2 per ogni passo --> + senso antiorario, - senso orario
 
+//Encoder
 #define ENCODER_DO_NOT_USE_INTERRUPTS
 #include <Encoder.h>
 //I2C
@@ -22,7 +23,7 @@
 #include "MAX30105.h"
 #include "spo2_algorithm.h"
 
-//encoder
+//Encoder
 #define clock 3
 #define encdt 4
 #define sw 5
@@ -47,13 +48,13 @@
 #define pinCO A2
 #define pinNH3 A1
 #define pinNO2 A0
-#define pinozono A5
+#define pinozono A3
 
 MPU6050 mpu;
 
 SimpleDHT11 sensore_temp(temp);
 
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/U8X8_PIN_NONE);
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R0, U8X8_PIN_NONE);
 
 Encoder enc(clock, encdt);
 
@@ -71,6 +72,7 @@ int unavolta = 0;
 bool batt = true;
 bool tmp = false;
 bool bast = false;
+bool data = false;
 
 int modalita = 0;
 int temporanea = 0;
@@ -127,21 +129,31 @@ void loop() {
       visualizza_ancora_battiti();
     } else if (tmp == true) {
       visualizza_ancora_temperatura();
+    } else if (data == true) {
+      visualizza_ancora_data();
     }
   }
 
+  emergency();
+
   batt = false;
   tmp = false;
+  data = false;
 
-  if (oldpos > pos) {  //senso orario
+  if (pos >=-10 && pos <= 10) {  //senso orario
 
     visualizza_battiti();
     batt = true;
 
-  } else if (oldpos < pos) {
+  } else if (pos < - 10) {
 
     visualizza_temperatura();
     tmp = true;
+
+  } else if (pos > 10){
+
+    visualizza_data();
+    data = true;
 
   } else if (premuto()) {
 
@@ -153,9 +165,15 @@ void loop() {
   emergency();
 
   verifica_caduta();
-  posizione();
-  rileva_aria();
 
+  if(timergps(600000)){
+    posizione();
+  }
+  
+  if(timeraria(600000)){
+    rileva_aria();
+  }
+  
   sveglia();
   allarme();
 
