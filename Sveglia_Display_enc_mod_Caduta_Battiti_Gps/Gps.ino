@@ -1,31 +1,16 @@
-#include <SoftwareSerial.h>
-#include <TinyGPS.h>
-
-#define TX 4
-#define RX 3
-
-TinyGPS gps;
-SoftwareSerial ss(RX, TX);
-
 float lat = 0.0;
 float lon = 0.0;
 unsigned long age;
 
-void setup() {
-
-  Serial.begin(9600);  //115200
-  ss.begin(9600);      //4800
-
-  Serial.println("Ready");
-}
-
-void loop() {
+void posizione(){
 
   bool newData = false;
   unsigned long chars;
   unsigned short sentences, failed;
 
   for (unsigned long start = millis(); millis() - start < 1000;) {
+
+    emergency();
 
     while (ss.available()) {
 
@@ -38,6 +23,8 @@ void loop() {
   }
 
   if (newData == true) {
+
+    emergency();
 
     gps.f_get_position(&lat, &lon, &age);
 
@@ -54,6 +41,7 @@ void loop() {
   gps.stats(&chars, &sentences, &failed);
 
   if (chars == 0){
+    emergency();
     Serial.println("** No characters received from GPS: check wiring **");
   }
 }

@@ -5,34 +5,12 @@
 //valori normali NO2: max 0.1 ppm
 //valori normali ozono: max 0.05 ppm - media 0.03 ppm
 
-#define pinCO A2
-#define pinNH3 A1
-#define pinNO2 A0
-#define pinozono A5
-
 int co, nh3;
 float no2, ozono;
 
-void setup() {
-  Serial.begin(9600);
-}
-
-void loop() {
-  
+void rileva_aria(){
   co = map (analogRead(pinCO), 0, 1023, 1, 1000);
   nh3 = map (analogRead(pinNH3), 0, 1023, 1, 500);
   no2 = map (analogRead(pinNO2), 0, 1023, 0.05, 10);
   ozono = map(analogRead(pinozono), 0, 1023, 0.01, 1);
-
-  Serial.print("CO: ");
-  Serial.print(co);
-  Serial.print(" ppm (1-4)\nNH3: ");
-  Serial.print(nh3);
-  Serial.print(" ppm (388)\nNO2: ");
-  Serial.print(no2);
-  Serial.print(" ppm (max 0.1)\nOzono");
-  Serial.print(ozono);
-  Serial.println(" ppm (0.03)\n");
-
-  delay(1000);
 }
