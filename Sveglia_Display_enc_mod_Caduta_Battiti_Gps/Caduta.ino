@@ -86,6 +86,7 @@ void inizializzaGyro() {
     Serial.print(F("DMP Initialization failed (code "));
     Serial.print(devStatus);
     Serial.println(F(")"));
+    while(true);
   }
 }
 

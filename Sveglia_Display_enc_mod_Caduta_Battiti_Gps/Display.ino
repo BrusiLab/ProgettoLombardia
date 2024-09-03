@@ -120,21 +120,22 @@ char tempstr[3];
 byte humidity = 0;
 char humstr[3];
 
-int ore = 10;
-char orestr[3];
-int minuti = 55;
-char minstr[3];
+int anno;
+int mese;
+int giorno;
+char gg_settimana[4];
+int ora;
+int minuto;
 
-int giorno = 10;
+char orestr[3];
+char minstr[3];
 char ggstr[3];
-int mese = 11;
 char mesestr[3];
-int anno = 2024;
 char annostr[3];
 
-int minutisveglia = 30;
+int minutisveglia = 61;
 char svminstr[3];
-int oresveglia = 10;
+int oresveglia = 25;
 char svorestr[3];
 
 int premuto() {
@@ -312,7 +313,7 @@ void visualizza_battiti() {
   display.drawStr(2, 57, "battiti...");
 
   display.sendBuffer();
-  
+
   if (unavolta == 0) {
     rileva_salute();
     unavolta++;
@@ -404,32 +405,44 @@ void visualizza_data() {
 
   display.drawXBMP(2, 11, 16, 16, orologio);
 
-  itoa(ore, orestr, 10);
+  itoa(ora, orestr, 10);
   display.drawStr(19, 25, orestr);
   display.drawStr(37, 23, ":");
-  itoa(minuti, minstr, 10);
+  itoa(minuto, minstr, 10);
   display.drawStr(44, 25, minstr);
 
   display.drawXBMP(66, 11, 16, 16, campana);
 
-  itoa(oresveglia, svorestr, 10);
-  display.drawStr(83, 25, svorestr);
-  display.drawStr(101, 23, ":");
-  itoa(minutisveglia, svminstr, 10);
-  display.drawStr(108, 25, svminstr);
-
-  display.setFont(u8g2_font_timB18_tr);
+  if (oresveglia <= 24) {
+    display.clearBuffer();
+    display.setFont(u8g2_font_timB14_tr);
+    itoa(oresveglia, svorestr, 10);
+    display.drawStr(83, 25, svorestr);
+    display.drawStr(101, 23, ":");
+    itoa(minutisveglia, svminstr, 10);
+    display.drawStr(108, 25, svminstr);
+    display.sendBuffer();
+  } else {
+    display.clearBuffer();
+    display.setFont(u8g2_font_timB14_tr);
+    display.drawStr(83, 25, "--");
+    display.drawStr(101, 23, ":");
+    display.drawStr(108, 25, "--");
+    display.sendBuffer();
+  }
 
   display.drawXBMP(2, 42, 16, 16, calendario);
 
   itoa(giorno, ggstr, 10);
   display.drawStr(19, 57, ggstr);
-  display.drawStr(42, 57, "/");
+  display.drawStr(37, 57, "/");
   itoa(mese, mesestr, 10);
-  display.drawStr(49, 57, mesestr);
-  display.drawStr(72, 57, "/");
+  display.drawStr(43, 57, mesestr);
+  display.drawStr(61, 57, "/");
   itoa(anno, annostr, 10);
-  display.drawStr(79, 57, annostr);
+  display.drawStr(67, 57, annostr);
+
+  display.drawStr(92, 57, gg_settimana);
 
   display.sendBuffer();
 }
@@ -500,9 +513,8 @@ void visualizza_ancora_data() {
     }
 
     if (premuto()) {
-      modalita = 0;
       data = true;
-      cambia_modalita();
+      imposta_sveglia();
     }
   }
 }
@@ -910,4 +922,4 @@ void visualizza_ancora_temperatura() {
       cambia_modalita();
     }
   }
-}*/ 
+}*/

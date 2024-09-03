@@ -22,6 +22,8 @@
 //Battiti
 #include "MAX30105.h"
 #include "spo2_algorithm.h"
+//Data e ora
+#include <RTClib.h>
 
 //Encoder
 #define clock 3
@@ -63,6 +65,8 @@ SoftwareSerial ss(RX, TX);
 
 MAX30105 particleSensor;
 
+RTC_DS1307 rtc;
+
 long oldpos;
 long pos = 1;
 
@@ -85,6 +89,7 @@ bool pericolo = false;  //attivato da pulsante emergenza o caduta
 bool fermati;           //attivato da disinnesco -> ferma sveglia e allarme
 
 void emergency() {
+  
   if (digitalRead(emergenza) == true) {
     pericolo = true;
   }
@@ -126,6 +131,8 @@ void setup() {
   inizializzaGyro();
 
   //cambia_modalita();
+
+  //inizializza_data();
 }
 
 void loop() {
