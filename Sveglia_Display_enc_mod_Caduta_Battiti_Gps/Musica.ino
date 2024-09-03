@@ -33,6 +33,8 @@
 
 #endif
 
+bool scattata = false;
+
 int stop() {
 
   if (digitalRead(disinnesco) == true) {
@@ -54,8 +56,14 @@ void suona(int nota, float tempo) {
 
 void sveglia() {
 
-  if(oresveglia == now.hour() && (minutisveglia == now.minute()){
-    orario = true;
+  
+  if(now.minute() - 3 >= minuti sveglia){
+    scattata = false;
+  } 
+
+  if(oresveglia == now.hour() && minutisveglia <= now.minute()-2 && scattata == false){
+    orario = true; 
+    scattata = true;
   }
     
   if (orario == true) {
