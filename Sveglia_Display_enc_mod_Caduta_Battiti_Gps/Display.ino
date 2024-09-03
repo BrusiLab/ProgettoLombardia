@@ -133,7 +133,7 @@ char ggstr[3];
 char mesestr[3];
 char annostr[3];
 
-int minutisveglia = 61;
+int minutisveglia = 0;
 char svminstr[3];
 int oresveglia = 25;
 char svorestr[3];

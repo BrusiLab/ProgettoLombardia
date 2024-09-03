@@ -54,6 +54,10 @@ void suona(int nota, float tempo) {
 
 void sveglia() {
 
+  if(oresveglia == now.hour() && (minutisveglia == now.minute()){
+    orario = true;
+  }
+    
   if (orario == true) {
     display.clearBuffer();
 
