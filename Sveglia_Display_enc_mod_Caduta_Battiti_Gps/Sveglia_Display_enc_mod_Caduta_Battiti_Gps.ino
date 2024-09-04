@@ -21,7 +21,6 @@
 #include <SimpleDHT.h>
 //Giroscopio e accelerometro
 #include "MPU6050_6Axis_MotionApps20.h"
-#include <Adafruit_Sensor.h>
 #include <I2Cdev.h>
 //Gps
 #include <SoftwareSerial.h>
@@ -153,7 +152,7 @@ void setup() {
 
   inizializzaGyro();
 
-  //cambia_modalita();
+  cambia_modalita();
 
   //inizializza_data();
 }

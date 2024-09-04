@@ -11,11 +11,8 @@ Quaternion q;  // [w, x, y, z]         quaternion container
 
 //accelerazione
 VectorInt16 aa;       // [x, y, z]            accel sensor measurements
-VectorInt16 aaReal;   // [x, y, z]            gravity-free accel sensor measurements
-VectorInt16 aaWorld;  // [x, y, z]            world-frame accel sensor measurements
 VectorFloat gravity;  // [x, y, z]            gravity vector
 
-float euler[3];  // [psi, theta, phi]    Euler angle container
 float ypr[3];    // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 float gx, gy, gz;
@@ -23,132 +20,91 @@ float ax, ay, az;
 
 bool caduta = false;
 
-// packet structure for InvenSense teapot demo
-uint8_t teapotPacket[14] = { '$', 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0x00, 0x00, '\r', '\n' };
-
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
-
-volatile bool mpuInterrupt = false;  // indicates whether MPU interrupt pin has gone high
-void dmpDataReady() {
-  mpuInterrupt = true;
-}
-
 void inizializzaGyro() {
-  // initialize device
-  Serial.println(F("Initializing I2C devices..."));
+
+  Wire.begin();
   mpu.initialize();
-  pinMode(INTERRUPT_PIN, INPUT);
-
-  // verify connection
-  Serial.println(F("Testing device connections..."));
-  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
-
-  // load and configure the DMP
-  Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
 
-  // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXGyroOffset(173);
-  mpu.setYGyroOffset(-94);
-  mpu.setZGyroOffset(37);
-  mpu.setZAccelOffset(1688);  // 1688 factory default for my test chip
+  // Imposta gli offset dell'MPU6050 (adatta questi valori al tuo modulo specifico)
+  mpu.setXGyroOffset(220);
+  mpu.setYGyroOffset(76);
+  mpu.setZGyroOffset(-85);
+  mpu.setZAccelOffset(1688); // 1688 factory default per il modulo mine
 
-  // make sure it worked (returns 0 if so)
+  // Controlla se l'inizializzazione è andata a buon fine
   if (devStatus == 0) {
-    // Calibration Time: generate offsets and calibrate our MPU6050
+    // Abilita DMP
     mpu.CalibrateAccel(6);
     mpu.CalibrateGyro(6);
     mpu.PrintActiveOffsets();
-
-    // turn on the DMP, now that it's ready
+    
     mpu.setDMPEnabled(true);
 
-    // enable Arduino interrupt detection
-    Serial.print(F("Enabling interrupt detection (Arduino external interrupt "));
-    Serial.print(digitalPinToInterrupt(INTERRUPT_PIN));
-    Serial.println(F(")..."));
-    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), dmpDataReady, RISING);
+    // Configura interrupt
     mpuIntStatus = mpu.getIntStatus();
 
-    // set our DMP Ready flag so the main loop() function knows it's okay to use it
-    dmpReady = true;
-
-    // get expected DMP packet size for later comparison
+    // Configura dimensione pacchetto
     packetSize = mpu.dmpGetFIFOPacketSize();
 
+    // Indica che il DMP è pronto
+    dmpReady = true;
+
   } else {
-    // ERROR!
-    // 1 = initial memory load failed
-    // 2 = DMP configuration updates failed
-    // (if it's going to break, usually the code will be 1)
+    // Se c'è un errore di inizializzazione, scrivilo nella seriale
     Serial.print(F("DMP Initialization failed (code "));
     Serial.print(devStatus);
     Serial.println(F(")"));
-    while (true)
-      ;
   }
 }
 
 void verifica_caduta() {
 
-  // display Euler angles in degrees
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
-  mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-  Serial.print("ypr\t");
+  if (!dmpReady) return;
 
-  emergency();
+  // Controlla se ci sono pacchetti FIFO disponibili
+  fifoCount = mpu.getFIFOCount();
 
-  gy = ypr[0] * 180 / M_PI;
-  Serial.print(gy);
-  Serial.print("\t");
+  if (fifoCount == 1024) {
+    // Se il FIFO è pieno, svuotalo e segnala l'overflow
+    mpu.resetFIFO();
+    Serial.println(F("FIFO overflow!"));
 
-  emergency();
+  } else if (fifoCount >= packetSize) {
+    // Leggi il pacchetto dal FIFO
+    mpu.getFIFOBytes(fifoBuffer, packetSize);
 
-  gz = ypr[1] * 180 / M_PI;
-  Serial.print(gz);
-  Serial.print("\t");
+    // Estrai quaternione, gravità e ypr
+    mpu.dmpGetQuaternion(&q, fifoBuffer);
+    mpu.dmpGetGravity(&gravity, &q);
+    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
-  emergency();
+    // Stampa i dati sulla seriale per il debug
+    Serial.print("Yaw: ");
+    Serial.print(ypr[0] * 180/M_PI);
+    gx = ypr[0] * 180/M_PI;
+    Serial.print("   ");
+    Serial.print(gx);
 
-  gx = ypr[2] * 180 / M_PI;
-  Serial.println(gx);
+    Serial.print("\t\tPitch: ");
+    Serial.print(ypr[1] * 180/M_PI);
+    gz = ypr[1] * 180/M_PI;
+    Serial.print("   ");
+    Serial.print(gz);
 
-  emergency();
-
-#ifdef OUTPUT_READABLE_REALACCEL
-  // display real acceleration, adjusted to remove gravity
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
-  mpu.dmpGetAccel(&aa, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
-  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-
-  emergency();
-
-  ax = aaReal.x;
-  Serial.print("areal\t");
-  Serial.print(aaReal.x);
-
-  emergency();
-
-  ay = aaReal.y;
-  Serial.print("\t");
-  Serial.print(aaReal.y);
-
-  emergency();
-
-  az = aaReal.z;
-  Serial.print("\t");
-  Serial.println(aaReal.z);
-
-  emergency();
-#endif
+    Serial.print("\t\tRoll: ");
+    Serial.print(ypr[2] * 180/M_PI);
+    gy = ypr[2] * 180/M_PI; 
+    Serial.print("   ");
+    Serial.println(gy);
+  }
 
   if (modalita == 1) {  //bastone: sfrutta giroscopio, accelerometro e laccio
 
-    if ((gx <= -45 || gy >= 75 || gy <= -70) && digitalRead(laccio) == 1) {
+    if ((gx <= -45 || gy >= 45 || gy <= -25) && digitalRead(laccio) == 1) {
       pericolo = true;
       Serial.println("CADUTOOOOOOOOOOOOOO");
       emergency();

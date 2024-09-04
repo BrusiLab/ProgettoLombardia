@@ -34,6 +34,7 @@
 #endif
 
 bool scattata = false;
+bool fermatialla = false;
 
 int stop() {
 
@@ -46,6 +47,17 @@ int stop() {
   emergency();
 
   return fermati;
+}
+
+int stopalla() {
+
+  if (digitalRead(disinnesco) == true) {
+    fermatialla = true;
+  } else {
+    fermatialla = false;
+  }
+
+  return fermatialla;
 }
 
 void suona(int nota, float tempo) {
@@ -148,6 +160,8 @@ void allarme() {
 
     for (int secondi = 30; secondi > 0; secondi--) {
 
+      Serial.println(secondi);
+
       display.clearBuffer();
 
       display.setFont(u8g2_font_timB14_tr);
@@ -160,42 +174,42 @@ void allarme() {
       display.sendBuffer();
 
       tone(buzzer, frq, 190);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       tone(buzzer, frq, 190);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
 
       digitalWrite(led, HIGH);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       digitalWrite(led, LOW);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
 
       digitalWrite(led, HIGH);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       digitalWrite(led, LOW);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
 
       tone(buzzer, frq, 190);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       tone(buzzer, frq, 190);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
 
       digitalWrite(led, HIGH);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       digitalWrite(led, LOW);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
 
       digitalWrite(led, HIGH);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       digitalWrite(led, LOW);
       delay(130);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
     }
 
     //invia allarme
@@ -205,29 +219,29 @@ void allarme() {
     display.setFont(u8g2_font_timB14_tr);
 
     display.drawStr(2, 25, "ALLARME");
-    display.drawStr(22, 57, "inviato avviso");
+    display.drawStr(2, 57, "inviato avviso");
 
     display.sendBuffer();
 
     while (pericolo == true) {
 
       tone(buzzer, frq, 500);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       tone(buzzer, frq, 500);
 
       digitalWrite(led, HIGH);
       delay(200);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       digitalWrite(led, LOW);
       delay(200);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
 
       digitalWrite(led, HIGH);
       delay(200);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
       digitalWrite(led, LOW);
       delay(200);
-      if (stop()) { break; }
+      if (stopalla()) { break; }
     }
 
     pericolo = false;
