@@ -1,3 +1,8 @@
+#include <Adafruit_BusIO_Register.h>
+#include <Adafruit_I2CDevice.h>
+#include <Adafruit_I2CRegister.h>
+#include <Adafruit_SPIDevice.h>
+
 //hardware gnd a ground, vcc a 5v, sda a sda, scl a scl
 
 //hardare enc: pin ai pin dichiarati, + a 5V e - a gnd
@@ -8,6 +13,7 @@
 #include <Encoder.h>
 //I2C
 #include <Wire.h>
+#include <SPI.h>
 //Display
 #include <Arduino.h>
 #include <U8g2lib.h>
@@ -15,6 +21,7 @@
 #include <SimpleDHT.h>
 //Giroscopio e accelerometro
 #include "MPU6050_6Axis_MotionApps20.h"
+#include <Adafruit_Sensor.h>
 #include <I2Cdev.h>
 //Gps
 #include <SoftwareSerial.h>
@@ -37,9 +44,12 @@
 //Sveglie
 #define buzzer 9
 #define led 10
-//Caduta
+//Display
+#define display_addr 0x3C
+//Cadut
 #define laccio 13        //colleghi cavo da 5v a pin
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
+#define MPU6050_addr 0x68
 //Gps
 #define TX 1
 #define RX 0
@@ -88,6 +98,24 @@ bool orario = false;    //attivato a ora sveglia
 bool pericolo = false;  //attivato da pulsante emergenza o caduta
 bool fermati;           //attivato da disinnesco -> ferma sveglia e allarme
 
+int anno;
+int mese;
+int giorno;
+char gg_settimana[4];
+int ora;
+int minuto;
+
+char orestr[3];
+char minstr[3];
+char ggstr[3];
+char mesestr[3];
+char annostr[3];
+
+int minutisveglia = 0;
+char svminstr[3];
+int oresveglia = 25;
+char svorestr[3];
+
 void emergency() {
   
   if (digitalRead(emergenza) == true) {
@@ -103,12 +131,7 @@ void setup() {
   while (!Serial)
     ;
 
-#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin();
-  //Wire.setClock(400000);  // 400kHz I2C clock. Comment this line if having compilation difficulties
-#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
-  Fastwire::setup(400, true);
-#endif
 
   ss.begin(9600);
 

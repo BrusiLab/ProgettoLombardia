@@ -50,9 +50,9 @@ void inizializzaGyro() {
   devStatus = mpu.dmpInitialize();
 
   // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXGyroOffset(90);
-  mpu.setYGyroOffset(180);
-  mpu.setZGyroOffset(90);
+  mpu.setXGyroOffset(173);
+  mpu.setYGyroOffset(-94);
+  mpu.setZGyroOffset(37);
   mpu.setZAccelOffset(1688);  // 1688 factory default for my test chip
 
   // make sure it worked (returns 0 if so)
@@ -86,7 +86,8 @@ void inizializzaGyro() {
     Serial.print(F("DMP Initialization failed (code "));
     Serial.print(devStatus);
     Serial.println(F(")"));
-    while(true);
+    while (true)
+      ;
   }
 }
 
@@ -160,4 +161,5 @@ void verifica_caduta() {
       emergency();
     }
   }
+
 }

@@ -56,12 +56,11 @@ void suona(int nota, float tempo) {
 
 void sveglia() {
 
-  
-  if(now.minute() - 3 >= minuti sveglia){
+  if(minuto - 3 >= minutisveglia){
     scattata = false;
   } 
 
-  if(oresveglia == now.hour() && minutisveglia <= now.minute()-2 && scattata == false){
+  if(oresveglia == ora && minutisveglia <= minuto-2 && scattata == false){
     orario = true; 
     scattata = true;
   }

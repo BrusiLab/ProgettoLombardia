@@ -120,24 +120,6 @@ char tempstr[3];
 byte humidity = 0;
 char humstr[3];
 
-int anno;
-int mese;
-int giorno;
-char gg_settimana[4];
-int ora;
-int minuto;
-
-char orestr[3];
-char minstr[3];
-char ggstr[3];
-char mesestr[3];
-char annostr[3];
-
-int minutisveglia = 0;
-char svminstr[3];
-int oresveglia = 25;
-char svorestr[3];
-
 int premuto() {
 
   emergency();
