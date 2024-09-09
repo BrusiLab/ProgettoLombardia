@@ -8,7 +8,7 @@
 int co, nh3;
 float no2, ozono;
 
-int timeraria(int ogni) {  //timer non bloccante
+int timeraria(int ogni) {  //timer non bloccante per qualità aria
 
   static unsigned long inizio = 0;
   static unsigned long passato;
@@ -26,7 +26,7 @@ int timeraria(int ogni) {  //timer non bloccante
   return uscita;
 }
 
-void rileva_aria(){
+void rileva_aria(){ //aggiorna i dati
   co = map (analogRead(pinCO), 0, 1023, 1, 1000);
   nh3 = map (analogRead(pinNH3), 0, 1023, 1, 500);
   no2 = map (analogRead(pinNO2), 0, 1023, 0.05, 10);

@@ -1,25 +1,26 @@
-char settimana[7][4] = {
+
+char settimana[7][4] = { //giorni della settimana (bisogna cominciare l'arrey con il giorno della settimana in cui è partito per la prima volta il sensore)
   "dom", "lun", "mar", "mer", "gio", "ven", "sab"
 };
 
-void inizializza_data() {
+void inizializza_data() { //inizializzat sensore
 
   if (!rtc.isrunning()) {
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); //usa data e ora attuali
     //rtc.adjust(DateTime(anno, mese, giorno, ora, minuti, secondi))
   }
 }
 
-void aggiorna_data() {
+void aggiorna_data() { //aggiorna data e ora
 
   DateTime now = rtc.now();
 
-  anno = now.year()-2000;
+  anno = now.year()-2000; //togli 2000 all'ann per avere una scrittura più compatta (24 anziché 2024)
   mese = now.month();
   giorno = now.day();
 
   for (int primo_gg = 0; primo_gg < 4; primo_gg++) {
-    gg_settimana[primo_gg] = settimana[now.dayOfTheWeek()][primo_gg];
+    gg_settimana[primo_gg] = settimana[now.dayOfTheWeek()][primo_gg]; //copia il giorno della settimana in una veriabile che andrà visualizzata sul display
   }
 
   ora = now.hour();
@@ -33,11 +34,11 @@ void imposta_sveglia() {
 
   Serial.println("imposto sveglia");
 
-  delay(500);
+  delay(500); //senza delay la pressione dell'encoder arriva anche nel codice dopo
 
-  while (!premuto()) {
+  while (!premuto()) { //finché non si preme l'encoder
 
-    while (!premuteore) {
+    while (!premuteore) { //finché non si preme l'encoder (però dopo averlo premuto una volta non rientra più qui finché non si richiama di nuovo imposta_sveglia)
 
       if (premuto()) {
         premuteore = true;
@@ -45,6 +46,8 @@ void imposta_sveglia() {
 
       oldpos = pos;
       pos = enc.read();
+
+      //se la posizione è negativa cambia il segno (arduino non fa il resto delle divisioni con numeri negtivi)
 
       if (pos != oldpos) {
         Serial.println(pos);
@@ -54,6 +57,9 @@ void imposta_sveglia() {
           positivo = pos;
         }
       }
+
+      //ogni intervallo di 8 corrisponde a un'ora, anche se superi le 23 torni a 00 perché il resto della divisione rientra nella prima categoria
+      //finché non superi le ore 23 (posizione 200) il resto della divisione corrisponde alla posizione, poi ricomincia
 
       if (positivo % 200 >= 0 && positivo % 200 < 8) {
         oresveglia = 0;
@@ -105,6 +111,8 @@ void imposta_sveglia() {
         oresveglia = 23;
       }
 
+      //ogni volta visualizza l'ora che stiamo impostando come sveglia
+
       display.clearBuffer();
 
       display.setFont(u8g2_font_timB14_tr);
@@ -122,12 +130,16 @@ void imposta_sveglia() {
       display.drawStr(73, 57, svminstr);
 
       display.sendBuffer();
+
+      //per confermare l'ora e passare alla selezione dei minuti premere l'encoder
     }
 
-    delay(500);
+    delay(500); //solito delay per dare tempo di rilasciare la pressione dell'encoder
 
     oldpos = pos;
     pos = enc.read();
+
+    //se la posizione è negativa cambia il segno (arduino non fa il resto delle divisioni con numeri negtivi)
 
     if (pos != oldpos) {
       Serial.println(pos);
@@ -138,6 +150,8 @@ void imposta_sveglia() {
       }
     }
 
+    //scala i minuti di 15 in 15
+
     if (positivo % 32 >= 0 && positivo % 32 < 8) {
       minutisveglia = 0;
     } else if (positivo % 32 >= 8 && positivo % 32 < 16) {
@@ -147,6 +161,8 @@ void imposta_sveglia() {
     } else if (positivo % 32 >= 24 && positivo % 32 < 32) {
       minutisveglia = 45;
     }
+
+    //visualizza i mintui che stiamo impostando
 
     display.clearBuffer();
 
@@ -167,8 +183,8 @@ void imposta_sveglia() {
     display.sendBuffer();
   }
 
-  delay(500);
+  delay(500); //solito delay per dare tempo di rilasciare la pressione dell'encoder
 
-  primo = 0;
+  primo = 0;  //dopo torna a visualizzare i battiti
   batt = true;
 }

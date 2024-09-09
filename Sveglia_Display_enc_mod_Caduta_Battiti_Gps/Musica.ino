@@ -3,7 +3,7 @@
 
 #define scalaalta
 
-#ifdef scalaalta
+#ifdef scalaalta  //suoneria originale nokia
 
 #define Do 523
 #define re 587
@@ -18,7 +18,7 @@
 
 #endif
 
-#ifdef scalabassa
+#ifdef scalabassa  //suoneria un ottava più bassa
 
 #define Do 262
 #define re 293
@@ -36,7 +36,7 @@
 bool scattata = false;
 bool fermatialla = false;
 
-int stop() {
+int stop() {  //rileva se viene premuto pulsante di disinnesco (se si restituisce true)
 
   if (digitalRead(disinnesco) == true) {
     fermati = true;
@@ -49,7 +49,7 @@ int stop() {
   return fermati;
 }
 
-int stopalla() {
+int stopalla() {  //uguale a stop ma da usare con l'allarme perché non contiene "emergency()" che farebbe ripartire l'allamre ogni volta
 
   if (digitalRead(disinnesco) == true) {
     fermatialla = true;
@@ -60,7 +60,7 @@ int stopalla() {
   return fermatialla;
 }
 
-void suona(int nota, float tempo) {
+void suona(int nota, float tempo) {  //suona una nota per tot tempo
   tone(buzzer, nota, durata * tempo);
   emergency();
   delay(durata * 1.3 * tempo);
@@ -68,16 +68,16 @@ void suona(int nota, float tempo) {
 
 void sveglia() {
 
-  if(minuto - 3 >= minutisveglia){
+  if (minuto - 3 >= minutisveglia) {  //dopo 3 minuti dall'ora della sveglia disattiva "scattata" perché tanto non suona più
     scattata = false;
-  } 
+  }
 
-  if(oresveglia == ora && minutisveglia <= minuto-2 && scattata == false){
-    orario = true; 
+  if (oresveglia == ora && minutisveglia <= minuto - 2 && scattata == false) {  //se è l'ora della sveglia (o fino a due minuti dopo se arduino era impegnato in altro) e non eè ancora suonata la sveglia
+    orario = true;                                                              //attiva orario
     scattata = true;
   }
-    
-  if (orario == true) {
+
+  if (orario == true) {  //se è l'ora della sveglia scrivi a schermo che è ora delle medicine
     display.clearBuffer();
 
     display.setFont(u8g2_font_timB14_tr);
@@ -88,13 +88,13 @@ void sveglia() {
     display.sendBuffer();
   }
 
-  while (orario == true) {
+  while (orario == true) {  //finché non vieni disattiva suona e fai lampeggiare un led
 
     digitalWrite(led, HIGH);
 
     suona(MI, 0.4);
     stop();
-    if (fermati) { break; }
+    if (fermati) { break; }  //se fermati == true esci dal while
     digitalWrite(led, LOW);
 
     suona(RE, 0.4);
@@ -156,9 +156,11 @@ char rimanenti[3];
 
 void allarme() {
 
-  if (pericolo == true) {
+  if (pericolo == true) {  //se una caduta o il pusalnte di emergenza hanno attivato pericolo
 
-    for (int secondi = 30; secondi > 0; secondi--) {
+    for (int secondi = 30; secondi > 0; secondi--) {  //si hanno 30 secondi per disattivare l'allare prima che sia inviata una mail
+
+      //so che la somma dei dilay non fa 1 secondo a ogni giro ma l'ho cronometrato e così sono 30 sec giusti
 
       Serial.println(secondi);
 
@@ -166,7 +168,7 @@ void allarme() {
 
       display.setFont(u8g2_font_timB14_tr);
 
-      display.drawStr(2, 25, "ALLARME");
+      display.drawStr(2, 25, "ALLARME");  //mostra a schermo quanti secondi rimangono
       itoa(secondi, rimanenti, 10);
       display.drawStr(2, 57, rimanenti);
       display.drawStr(22, 57, "s rimanenti");
@@ -212,18 +214,20 @@ void allarme() {
       if (stopalla()) { break; }
     }
 
-    //invia allarme
+    if (fermatialla == false) { //se l'allarme non è stato disattivato invia una mail (codice per mail ancora da scrivere)
+      //invia allarme
 
-    display.clearBuffer();
+      display.clearBuffer();
 
-    display.setFont(u8g2_font_timB14_tr);
+      display.setFont(u8g2_font_timB14_tr);
 
-    display.drawStr(2, 25, "ALLARME");
-    display.drawStr(2, 57, "inviato avviso");
+      display.drawStr(2, 25, "ALLARME");
+      display.drawStr(2, 57, "inviato avviso"); //mostra a schermo che è stato inviato l'avviso
 
-    display.sendBuffer();
+      display.sendBuffer();
+    }
 
-    while (pericolo == true) {
+    while (pericolo == true && fermatialla == false) { //dopo i 30 secondi cambia ritmo e continua a suonare e lampeggiare finché non si disattiva
 
       tone(buzzer, frq, 500);
       if (stopalla()) { break; }
@@ -246,5 +250,6 @@ void allarme() {
 
     pericolo = false;
     fermati = false;
+    fermatialla = false;
   }
 }

@@ -1,3 +1,5 @@
+//Codice copiato dalla libreria con poche modifiche
+
 #define MAX_BRIGHTNESS 255
 
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
@@ -18,11 +20,11 @@ int8_t validHeartRate;  //indicator to show if the heart rate calculation is val
 
 int misurabattiti;
 
-void inizializzaBattiti() {
+void inizializzaBattiti() { //inizializzazione del sensore
   // Initialize sensor
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST))  //Use default I2C port, 400kHz speed
   {
-    Serial.println(F("MAX30105 was not found. Please check wiring/power."));
+    Serial.println(F("MAX30105 was not found. Please check wiring/power.")); //messaggio di errore e blocco al codice se inizializzazioen fallisce
     while (1)
       ;
   }
@@ -53,12 +55,12 @@ void rileva_salute() {
 
     iniziorilevazione = millis();
 
-    while (particleSensor.available() == false && millis() - iniziorilevazione <= 5000) {  //do we have new data?
+    while (particleSensor.available() == false && millis() - iniziorilevazione <= 5000) {  //se abbiamo nuovi dati entro 5 sec
       particleSensor.check();                                                              //Check the sensor for new data
       emergency();
     }
 
-    if (millis() - iniziorilevazione <= 5000) {
+    if (millis() - iniziorilevazione <= 5000) { //se sono stati rilevati nuovi dati elaborali, altrimenti no
 
       redBuffer[i] = particleSensor.getRed();
       irBuffer[i] = particleSensor.getIR();
@@ -71,16 +73,17 @@ void rileva_salute() {
     }
   }
 
+  //ATTENZIONE: QUESTO POTREBBE NON ANDARE PERCHE IO HO INSERITO UN LIMITE DI TEMPO ALLA MISURAZIONE, ALTRIMENTI SI BLOCCAVA SEMPRE A RILEVARE, QUINDI POTREBBE AVERE PROBLEMI AD ELABORARE I DATI CON ALCUNI VALORI MANCANTI
   //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
-  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
+  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate); 
 
-  if (unavolta == 0) {
+  if (unavolta == 0) {    //se è la prima volta che si rilevano i battiti dopo i primi 100 rilevane altri 100
     misurabattiti = 0;
-  } else {
+  } else {                //altrimenti solo altri 50
     misurabattiti = 2;
   }
 
-  while (misurabattiti < 4) {
+  while (misurabattiti < 4) { //prende 25 misurazioni ogni volta ch ripete il ciclo, 2 volte normalmente, 4 volte la prima volta
 
     //take 25 sets of samples before calculating the heart rate.
     for (byte i = 75; i < 100; i++) {
@@ -89,14 +92,14 @@ void rileva_salute() {
 
       iniziorilevazione = millis();
 
-      while (particleSensor.available() == false && millis() - iniziorilevazione <= 5000) {  //do we have new data?
+      while (particleSensor.available() == false && millis() - iniziorilevazione <= 5000) {  //se abbiamo nuovi dati entro 5 sec
         particleSensor.check();                                                              //Check the sensor for new data
         emergency();
       }
 
-      if (millis() - iniziorilevazione <= 5000) {
+      if (millis() - iniziorilevazione <= 5000) { //se sono stati rilevati nuovi dati elaborali, altrimenti no
 
-        redBuffer[i - 75] = redBuffer[i - 50];
+        redBuffer[i - 75] = redBuffer[i - 50]; //solo se sono stati rilevati nuovi dati scarta i precedenti
         irBuffer[i - 75] = irBuffer[i - 50];
 
         digitalWrite(readLED, !digitalRead(readLED));  //Blink onboard LED with every data read
@@ -127,6 +130,7 @@ void rileva_salute() {
 
     emergency();
 
+    //ATTENZIONE: QUESTO POTREBBE NON ANDARE PERCHE IO HO INSERITO UN LIMITE DI TEMPO ALLA MISURAZIONE, ALTRIMENTI SI BLOCCAVA SEMPRE A RILEVARE, QUINDI POTREBBE AVERE PROBLEMI AD ELABORARE I DATI CON ALCUNI VALORI MANCANTI
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
 

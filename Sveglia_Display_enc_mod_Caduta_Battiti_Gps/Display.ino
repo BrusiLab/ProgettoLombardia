@@ -1,4 +1,4 @@
-const byte cuore[32] PROGMEM =  //disegno cuore
+const byte cuore[32] PROGMEM =  //disegno cuore (battiti)
 
   { B00000000, B00000000,
     B00111000, B00011100,
@@ -17,7 +17,7 @@ const byte cuore[32] PROGMEM =  //disegno cuore
     B10000000, B00000001,
     B00000000, B00000000 };
 
-const byte goccia[32] PROGMEM =  //disegno cuore
+const byte goccia[32] PROGMEM =  //disegno goccia (umidità)
 
   { B00000000, B00000000,
     B10000000, B00000001,
@@ -36,7 +36,7 @@ const byte goccia[32] PROGMEM =  //disegno cuore
     B11000000, B00000011,
     B00000000, B00000000 };
 
-const byte sole[32] PROGMEM =  //disegno cuore
+const byte sole[32] PROGMEM =  //disegno sole (temperatura)
 
   { B00000000, B00000000,
     B00100000, B00000100,
@@ -55,7 +55,7 @@ const byte sole[32] PROGMEM =  //disegno cuore
     B00100000, B00000100,
     B00000000, B00000000 };
 
-const byte orologio[32] PROGMEM =  //disegno cuore
+const byte orologio[32] PROGMEM =  //disegno orologio (ora)
 
   { B00000000, B00000000,
     B11000000, B00000011,
@@ -74,7 +74,7 @@ const byte orologio[32] PROGMEM =  //disegno cuore
     B11000000, B00000011,
     B00000000, B00000000 };
 
-const byte campana[32] PROGMEM =  //disegno cuore
+const byte campana[32] PROGMEM =  //disegno campana (sveglia)
 
   { B00000000, B00000000,
     B10000000, B00000001,
@@ -93,7 +93,7 @@ const byte campana[32] PROGMEM =  //disegno cuore
     B10000000, B00000001,
     B10000000, B00000001 };
 
-const byte calendario[32] PROGMEM =  //disegno cuore
+const byte calendario[32] PROGMEM =  //disegno calendario (data)
 
   { B00000000, B00000000,
     B11111100, B00111111,
@@ -112,7 +112,7 @@ const byte calendario[32] PROGMEM =  //disegno cuore
     B11111100, B00111111,
     B00000000, B00000000 };
 
-char sp02str[4];
+char sp02str[4];  //variabili in formato stringhe per scriverle sul display
 char battitistr[4];
 
 byte temperature = 0;
@@ -120,7 +120,7 @@ char tempstr[3];
 byte humidity = 0;
 char humstr[3];
 
-int premuto() {
+int premuto() {  //funzione che rileva se l'encoder viene premuto (restituisce true se vero)
 
   emergency();
 
@@ -133,7 +133,7 @@ int premuto() {
   return premutoenc;
 }
 
-int timertemp(int timer1) {  //timer non bloccante
+int timertemp(int timer1) {  //timer non bloccante per la temperatura
 
   static unsigned long t1 = 0;
   static unsigned long dt;
@@ -151,7 +151,7 @@ int timertemp(int timer1) {  //timer non bloccante
   return ret;
 }
 
-int timerdata(int tempodata) {  //timer non bloccante
+int timerdata(int tempodata) {  //timer non bloccante per l'ora
 
   static unsigned long tempodata1 = 0;
   static unsigned long deltatmpodata;
@@ -169,7 +169,7 @@ int timerdata(int tempodata) {  //timer non bloccante
   return tot;
 }
 
-int timerbattiti(int soglia) {  //timer non bloccante
+int timerbattiti(int soglia) {  //timer non bloccante per i battiti
 
   static unsigned long tempo1 = 0;
   static unsigned long deltatempo;
@@ -187,31 +187,31 @@ int timerbattiti(int soglia) {  //timer non bloccante
   return esito;
 }
 
-void visualizza_bastone() {
+void visualizza_bastone() {  //visualizzat la schermata del bastone
 
   display.clearDisplay();
   display.clearBuffer();
 
   display.setFont(u8g2_font_timB14_tr);
 
-  display.drawStr(2, 20, "MODALITA:");  //scrivi bastone a schermo
+  display.drawStr(2, 20, "MODALITA:");
 
-  display.drawStr(2, 52, "Bastone");
+  display.drawStr(2, 52, "Bastone");  //scrivi bastone a schermo
 
   display.sendBuffer();
 
   oldpos = pos;
-  pos = enc.read();
+  pos = enc.read();  //aggiorna posizione
 
-  while (oldpos >= pos) {  //se non cambia niente o visualizzeresti ancora bastone
+  while (oldpos >= pos) {  //se non stai fermo o giri nel vero in cui visualizzeresti ancora bastone
 
-    if (premuto()) {  //se premi imposti quella modalita
-      temporanea = 1;
+    if (premuto()) {   //se premi l'encoder imposti quella modalita
+      temporanea = 1;  //assegnato valore di modalità a una variabile temporanea se no non funziona
       Serial.println("PIGIATO");
       Serial.println(modalita);
       break;
     } else {
-      temporanea = 0;
+      temporanea = 0;  //se non viene premuto modalità rimane 0
     }
 
     oldpos = pos;
@@ -219,16 +219,16 @@ void visualizza_bastone() {
   }
 }
 
-void visualizza_deambulatore() {  //come il bastone
+void visualizza_deambulatore() {  //codice uguale a visualizza_bastone
 
   display.clearDisplay();
   display.clearBuffer();
 
   display.setFont(u8g2_font_timB14_tr);
 
-  display.drawStr(2, 20, "MODALITA:");  //scrivi bastone a schermo
+  display.drawStr(2, 20, "MODALITA:");
 
-  display.drawStr(2, 52, "Deambulatore");
+  display.drawStr(2, 52, "Deambulatore");  //scrivi deambulatore a schermo
 
   display.sendBuffer();
 
@@ -251,59 +251,55 @@ void visualizza_deambulatore() {  //come il bastone
   }
 }
 
-void cambia_modalita() {
+void cambia_modalita() {  //funzione richiamata all'inizio e quando schiaccio l'encoder -> gestisce il cambio di modalità
 
   Serial.println("cambio modalita");
 
   while (modalita == 0) {  //finché non selezioni la modalità desiderata
 
-    Serial.println("while");
-
     oldpos = pos;
     pos = enc.read();
 
-    Serial.println("passo dall'inizio");
-
-    if (oldpos > pos) {  //senso orario
+    if (oldpos > pos) {  //se giri in senso orario visualizza bastone
       visualizza_bastone();
-    } else if (oldpos < pos) {
+    } else if (oldpos < pos) {  //se giri in senso antiorario visualizza deambulatore
       visualizza_deambulatore();
-    } else if (oldpos == pos && bast == true) {
-      bast = false;
-      delay(500);
+    } else if (oldpos == pos && bast == true) {  //se rimani fermo subito dopo aver premuto (sempre) visualizza prima bastone
+      bast = false;                              //solo dopo aver premuto, poi continui a visualizzare quello che stavi vedendo
+      delay(500);                                //delay di mezzo secondo perché altrimenti rileva ancora la pressione dell'encoder e seleziona la modalità bastone
       visualizza_bastone();
     }
 
-    modalita = temporanea;
+    modalita = temporanea;  //aggiorna il valore di modalità attraverso la variabile temporanea
 
     Serial.println(modalita);
   }
 
   Serial.println(modalita);
 
-  primo = 0;
-  batt = true;
+  primo = 0;    //azzera primo -> permette di visualizzare i battiti ogni volta che esci dalla schermata in cui selezioni la modalità
+  batt = true;  //battiti = true permette di visualizzare i battiti
 }
 
-void visualizza_battiti() {
+void visualizza_battiti() {  //mostra a schermo il valore di battiti e ossigenazione
 
   display.clearBuffer();
 
   display.setFont(u8g2_font_timB14_tr);
 
-  display.drawStr(2, 25, "Misurazione");
+  display.drawStr(2, 25, "Misurazione");  //scrivi che stai rilevando i battiti
   display.drawStr(2, 57, "battiti...");
 
   display.sendBuffer();
 
   if (unavolta == 0) {
-    rileva_salute();
+    rileva_salute();  //rileva i battiti (la prima volta fai più misurazioni)
     unavolta++;
   } else {
     rileva_salute();
   }
 
-  display.clearBuffer();
+  display.clearBuffer();  //una volta finita la misurazione mostra il valore dei battiti
 
   display.setFont(u8g2_font_timB14_tr);
 
@@ -311,17 +307,17 @@ void visualizza_battiti() {
 
   display.setFont(u8g2_font_timB18_tr);
 
-  if (heartRate < 30 || heartRate > 250) {
+  if (heartRate < 30 || heartRate > 250) {  //se i valori non hanno senso
     display.drawStr(75, 25, "--");
-  } else if (heartRate >= 100) {
-    itoa(heartRate, battitistr, 10);
+  } else if (heartRate >= 100) {      //impagina diversamente i valori se hanno 2 o 3 cifre
+    itoa(heartRate, battitistr, 10);  //itoa serve per trasformare i dati da intero a stringa
     display.drawStr(70, 25, battitistr);
   } else {  //se i dati hanno senso
     itoa(heartRate, battitistr, 10);
     display.drawStr(80, 25, battitistr);
   }
 
-  display.drawXBMP(110, 10, 16, 16, cuore);
+  display.drawXBMP(110, 10, 16, 16, cuore);  //mostra il disegno del cuore
 
   display.setFont(u8g2_font_timB14_tr);
 
@@ -329,9 +325,9 @@ void visualizza_battiti() {
 
   display.setFont(u8g2_font_timB18_tr);
 
-  if (spo2 < 80) {
+  if (spo2 < 80) {  //se i dati non hanno senso
     display.drawStr(75, 57, "--");
-  } else if (spo2 == 100) {  //se i dati hanno senso
+  } else if (spo2 == 100) {
     itoa(spo2, sp02str, 10);
     display.drawStr(70, 57, sp02str);
   } else {
@@ -346,9 +342,9 @@ void visualizza_battiti() {
   display.sendBuffer();
 }
 
-void visualizza_temperatura() {
+void visualizza_temperatura() {  //mostra a schermo la temperatura e umidità
 
-  sensore_temp.read(&temperature, &humidity, NULL);
+  sensore_temp.read(&temperature, &humidity, NULL);  //rileva temperatura e umidità
 
   display.clearBuffer();
 
@@ -356,7 +352,7 @@ void visualizza_temperatura() {
 
   display.drawXBMP(2, 9, 16, 16, sole);
 
-  itoa((int)temperature, tempstr, 10);
+  itoa((int)temperature, tempstr, 10);  //(int) converte variabile da float a int
   display.drawStr(50, 25, tempstr);
 
   display.drawStr(100, 25, "C");
@@ -377,9 +373,9 @@ void visualizza_temperatura() {
   display.sendBuffer();
 }
 
-void visualizza_data() {
+void visualizza_data() {  //visualizza orario, ora sveglia, data e giorno della settimana
 
-  aggiorna_data();
+  aggiorna_data();  //aggiorna di dati
 
   display.clearBuffer();
 
@@ -395,7 +391,7 @@ void visualizza_data() {
 
   display.drawXBMP(66, 11, 16, 16, campana);
 
-  if (oresveglia <= 24) {
+  if (oresveglia <= 24) {  //se è stata impostata una sveglia mostrala
     display.clearBuffer();
     display.setFont(u8g2_font_timB14_tr);
     itoa(oresveglia, svorestr, 10);
@@ -404,7 +400,7 @@ void visualizza_data() {
     itoa(minutisveglia, svminstr, 10);
     display.drawStr(108, 25, svminstr);
     display.sendBuffer();
-  } else {
+  } else {  //altrimenti scrivi --:-- (orasveglia è inizializzata a 25, quando invece viene impostata assume un valore tra 0 e 23)
     display.clearBuffer();
     display.setFont(u8g2_font_timB14_tr);
     display.drawStr(83, 25, "--");
@@ -429,24 +425,26 @@ void visualizza_data() {
   display.sendBuffer();
 }
 
+//le funzioni visualizza_ancora_-- gestiscono la visualizzazione, i tempi e le interazioni (vengono richiamate dopo aver visualizzato una volta i dati con le funzioni visualizza_--)
+//le funzioni visualizza_-- si limitano ad aggiornare i dati e mostrarli a schermo
+
 void visualizza_ancora_battiti() {
 
-  while (pos >= -10 && pos <= 10) {
+  while (pos >= -10 && pos <= 10) {  //finché la posizione è nel range della schermata dei battiti
 
     oldpos = pos;
-    pos = enc.read();
+    pos = enc.read();  //Aggiorna la posizione
 
-    if (primo == 0) {
+    if (timerbattiti(300000)) { //ogni 5 min aggiorna i dati e mostrali a schermo
       visualizza_battiti();
-      primo++;
-      delay(500);
-    } else {
-      if (timerbattiti(30000)) {
-        visualizza_battiti();
-      }
     }
 
-    if (premuto()) {
+    if (primo == 0) {  //se sei qui dopo aver cambiato modalità attendi mezzo secondo altrimenti la pressione dell'encoder viene ancora rilevata
+      primo++;
+      delay(500);
+    }
+
+    if (premuto()) {  //se schiacci l'encoder azzera modalità e torna alla pagina di selezione modalità
       modalita = 0;
       bast = true;
       cambia_modalita();
@@ -458,20 +456,20 @@ void visualizza_ancora_battiti() {
 
 void visualizza_ancora_temperatura() {
 
-  while (pos < -10) {
+  while (pos < -10) { //finché la posizione è nel range della schermata della temperatura
 
     oldpos = pos;
-    pos = enc.read();
+    pos = enc.read(); //aggiorna la posizione
 
-    if (primo == 0) {
+    if (primo == 0) { //se sei qui dopo aver cambiato modalità mostra i battiti
       visualizza_ancora_battiti();
-    } else {
+    } else {          //altrimenti ogni 5 min aggiorna e mostra i dati
       if (timertemp(30000)) {
         visualizza_temperatura();
       }
     }
 
-    if (premuto()) {
+    if (premuto()) { //se schiacci l'encoder azzera modalità e torna alla pagina di selezione modalità
       modalita = 0;
       bast = true;
       cambia_modalita();
@@ -481,27 +479,28 @@ void visualizza_ancora_temperatura() {
 
 void visualizza_ancora_data() {
 
-  while (pos > 10) {
+  while (pos > 10) { //finché la posizione è nel range della schermata della data
 
     oldpos = pos;
-    pos = enc.read();
+    pos = enc.read(); //aggiorna la posizione
 
-    if (primo == 0) {
+    if (primo == 0) { //se sei qui dopo aver cambiato modalità mostra i battiti
       visualizza_ancora_battiti();
-    } else {
+    } else {          //altrimenti ogni minuto aggiorna e mostra i dati
       if (timerdata(1000)) {
         visualizza_data();
       }
     }
 
-    if (premuto()) {
+    if (premuto()) { //se schiacci l'encoder entri nella pagina per impostare una sveglia
       data = true;
       imposta_sveglia();
     }
   }
 }
 
-/*
+/* CODICE VECCHIO DA CUI HO PRESO ALCUNE PARTI
+
 const byte cuore[32] PROGMEM =  //disegno cuore
 
   { B00000000, B00000000,

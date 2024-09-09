@@ -1,8 +1,10 @@
+//copiato da libreria
+
 float lat = 0.0;
 float lon = 0.0;
 unsigned long age;
 
-int timergps(int ognitot) {  //timer non bloccante
+int timergps(int ognitot) {  //timer non bloccante pe gps
 
   static unsigned long partenza = 0;
   static unsigned long trascorso;
@@ -24,7 +26,7 @@ void posizione(){
 
   display.clearBuffer();
 
-  display.setFont(u8g2_font_timB14_tr);
+  display.setFont(u8g2_font_timB14_tr); //mentre rileva la posizione mostra a schermo che lo stai facendo (altrimenti l'anziano non capisce perché non funziona l'encoder)
 
   display.drawStr(2, 25, "Rilevazione");
   display.drawStr(2, 57, "posizione...");

@@ -1,3 +1,5 @@
+//Codice copiato e rielaborato dalla libreria con chatGPT
+
 // MPU control/status vars
 bool dmpReady = false;   // set true if DMP init was successful
 uint8_t mpuIntStatus;    // holds actual interrupt status byte from MPU
@@ -23,9 +25,8 @@ bool caduta = false;
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
-void inizializzaGyro() {
+void inizializzaGyro() {  //inizializza giroscopio
 
-  Wire.begin();
   mpu.initialize();
   devStatus = mpu.dmpInitialize();
 
@@ -38,7 +39,7 @@ void inizializzaGyro() {
   // Controlla se l'inizializzazione è andata a buon fine
   if (devStatus == 0) {
     // Abilita DMP
-    mpu.CalibrateAccel(6);
+    mpu.CalibrateAccel(6);    //calibra gli angoli in basa alla posizione attuale
     mpu.CalibrateGyro(6);
     mpu.PrintActiveOffsets();
     
@@ -102,19 +103,19 @@ void verifica_caduta() {
     Serial.println(gy);
   }
 
-  if (modalita == 1) {  //bastone: sfrutta giroscopio, accelerometro e laccio
+  if (modalita == 1) {  //bastone: sfrutta giroscopio e laccio
 
-    if ((gx <= -45 || gy >= 45 || gy <= -25) && digitalRead(laccio) == 1) {
-      pericolo = true;
+    if ((gx <= -45 || gy >= 45 || gy <= -25) && digitalRead(laccio) == 1) { //angoli critici rilevati empiricamente
+      pericolo = true;  //se rilevata caduta attiva la boolena pericolo
       Serial.println("CADUTOOOOOOOOOOOOOO");
-      emergency();
+      emergency();      //fai partire l'allarme
     }
 
   } else if (modalita == 2) {  //deambulatore: sfrutta laccio
 
-    if (digitalRead(laccio) == 0) {
-      pericolo = true;
-      emergency();
+    if (digitalRead(laccio) == 0) { //se l'anziano si sgancia dal deambulatore considera una caduta
+      pericolo = true;  //attiva pericolo e richiama allarme
+      emergency();    
     }
   }
 
