@@ -20,11 +20,11 @@ int8_t validHeartRate;  //indicator to show if the heart rate calculation is val
 
 int misurabattiti;
 
-void inizializzaBattiti() { //inizializzazione del sensore
+void inizializzaBattiti() {  //inizializzazione del sensore
   // Initialize sensor
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST))  //Use default I2C port, 400kHz speed
   {
-    Serial.println(F("MAX30105 was not found. Please check wiring/power.")); //messaggio di errore e blocco al codice se inizializzazioen fallisce
+    Serial.println(F("MAX30105 was not found. Please check wiring/power."));  //messaggio di errore e blocco al codice se inizializzazioen fallisce
     while (1)
       ;
   }
@@ -45,48 +45,15 @@ int iniziorilevazione;
 
 void rileva_salute() {
 
-  emergency();
-  bufferLength = 100;  //buffer length of 100 stores 4 seconds of samples running at 25sps
+  particleSensor.check();
 
-  //read the first 100 samples, and determine the signal range
-  for (byte i = 0; i < bufferLength; i++) {
+  if (particleSensor.available() == false) {
 
     emergency();
+    bufferLength = 100;  //buffer length of 100 stores 4 seconds of samples running at 25sps
 
-    iniziorilevazione = millis();
-
-    while (particleSensor.available() == false && millis() - iniziorilevazione <= 5000) {  //se abbiamo nuovi dati entro 5 sec
-      particleSensor.check();                                                              //Check the sensor for new data
-      emergency();
-    }
-
-    if (millis() - iniziorilevazione <= 5000) { //se sono stati rilevati nuovi dati elaborali, altrimenti no
-
-      redBuffer[i] = particleSensor.getRed();
-      irBuffer[i] = particleSensor.getIR();
-      particleSensor.nextSample();  //We're finished with this sample so move to next sample
-
-      Serial.print(F("red="));
-      Serial.print(redBuffer[i], DEC);
-      Serial.print(F(", ir="));
-      Serial.println(irBuffer[i], DEC);
-    }
-  }
-
-  //ATTENZIONE: QUESTO POTREBBE NON ANDARE PERCHE IO HO INSERITO UN LIMITE DI TEMPO ALLA MISURAZIONE, ALTRIMENTI SI BLOCCAVA SEMPRE A RILEVARE, QUINDI POTREBBE AVERE PROBLEMI AD ELABORARE I DATI CON ALCUNI VALORI MANCANTI
-  //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
-  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate); 
-
-  if (unavolta == 0) {    //se è la prima volta che si rilevano i battiti dopo i primi 100 rilevane altri 100
-    misurabattiti = 0;
-  } else {                //altrimenti solo altri 50
-    misurabattiti = 2;
-  }
-
-  while (misurabattiti < 4) { //prende 25 misurazioni ogni volta ch ripete il ciclo, 2 volte normalmente, 4 volte la prima volta
-
-    //take 25 sets of samples before calculating the heart rate.
-    for (byte i = 75; i < 100; i++) {
+    //read the first 100 samples, and determine the signal range
+    for (byte i = 0; i < bufferLength; i++) {
 
       emergency();
 
@@ -97,43 +64,81 @@ void rileva_salute() {
         emergency();
       }
 
-      if (millis() - iniziorilevazione <= 5000) { //se sono stati rilevati nuovi dati elaborali, altrimenti no
-
-        redBuffer[i - 75] = redBuffer[i - 50]; //solo se sono stati rilevati nuovi dati scarta i precedenti
-        irBuffer[i - 75] = irBuffer[i - 50];
-
-        digitalWrite(readLED, !digitalRead(readLED));  //Blink onboard LED with every data read
+      if (millis() - iniziorilevazione <= 5000) {  //se sono stati rilevati nuovi dati elaborali, altrimenti no
 
         redBuffer[i] = particleSensor.getRed();
         irBuffer[i] = particleSensor.getIR();
         particleSensor.nextSample();  //We're finished with this sample so move to next sample
 
-        //send samples and calculation result to terminal program through UART
         Serial.print(F("red="));
         Serial.print(redBuffer[i], DEC);
         Serial.print(F(", ir="));
-        Serial.print(irBuffer[i], DEC);
-
-        Serial.print(F(", HR="));
-        Serial.print(heartRate, DEC);
-
-        Serial.print(F(", HRvalid="));
-        Serial.print(validHeartRate, DEC);
-
-        Serial.print(F(", SPO2="));
-        Serial.print(spo2, DEC);
-
-        Serial.print(F(", SPO2Valid="));
-        Serial.println(validSPO2, DEC);
+        Serial.println(irBuffer[i], DEC);
       }
     }
 
-    emergency();
-
     //ATTENZIONE: QUESTO POTREBBE NON ANDARE PERCHE IO HO INSERITO UN LIMITE DI TEMPO ALLA MISURAZIONE, ALTRIMENTI SI BLOCCAVA SEMPRE A RILEVARE, QUINDI POTREBBE AVERE PROBLEMI AD ELABORARE I DATI CON ALCUNI VALORI MANCANTI
-    //After gathering 25 new samples recalculate HR and SP02
+    //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
 
-    misurabattiti++;
+    if (unavolta == 0) {  //se è la prima volta che si rilevano i battiti dopo i primi 100 rilevane altri 100
+      misurabattiti = 0;
+    } else {  //altrimenti solo altri 50
+      misurabattiti = 2;
+    }
+
+    while (misurabattiti < 4) {  //prende 25 misurazioni ogni volta ch ripete il ciclo, 2 volte normalmente, 4 volte la prima volta
+
+      //take 25 sets of samples before calculating the heart rate.
+      for (byte i = 75; i < 100; i++) {
+
+        emergency();
+
+        iniziorilevazione = millis();
+
+        while (particleSensor.available() == false && millis() - iniziorilevazione <= 5000) {  //se abbiamo nuovi dati entro 5 sec
+          particleSensor.check();                                                              //Check the sensor for new data
+          emergency();
+        }
+
+        if (millis() - iniziorilevazione <= 5000) {  //se sono stati rilevati nuovi dati elaborali, altrimenti no
+
+          redBuffer[i - 75] = redBuffer[i - 50];  //solo se sono stati rilevati nuovi dati scarta i precedenti
+          irBuffer[i - 75] = irBuffer[i - 50];
+
+          digitalWrite(readLED, !digitalRead(readLED));  //Blink onboard LED with every data read
+
+          redBuffer[i] = particleSensor.getRed();
+          irBuffer[i] = particleSensor.getIR();
+          particleSensor.nextSample();  //We're finished with this sample so move to next sample
+
+          //send samples and calculation result to terminal program through UART
+          Serial.print(F("red="));
+          Serial.print(redBuffer[i], DEC);
+          Serial.print(F(", ir="));
+          Serial.print(irBuffer[i], DEC);
+
+          Serial.print(F(", HR="));
+          Serial.print(heartRate, DEC);
+
+          Serial.print(F(", HRvalid="));
+          Serial.print(validHeartRate, DEC);
+
+          Serial.print(F(", SPO2="));
+          Serial.print(spo2, DEC);
+
+          Serial.print(F(", SPO2Valid="));
+          Serial.println(validSPO2, DEC);
+        }
+      }
+
+      emergency();
+
+      //ATTENZIONE: QUESTO POTREBBE NON ANDARE PERCHE IO HO INSERITO UN LIMITE DI TEMPO ALLA MISURAZIONE, ALTRIMENTI SI BLOCCAVA SEMPRE A RILEVARE, QUINDI POTREBBE AVERE PROBLEMI AD ELABORARE I DATI CON ALCUNI VALORI MANCANTI
+      //After gathering 25 new samples recalculate HR and SP02
+      maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
+
+      misurabattiti++;
+    }
   }
 }
