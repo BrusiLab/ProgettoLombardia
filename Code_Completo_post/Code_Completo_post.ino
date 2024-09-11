@@ -1,6 +1,6 @@
 //JSON (versione 5)
 #include <ArduinoJson.h>
-#include <ArduinoJson.hpp>
+//#include <ArduinoJson.hpp>
 //Wifi
 #include <ArduinoHttpClient.h>
 #include "WiFi.h"
@@ -60,24 +60,6 @@
 #define pinNO2 A0
 #define pinozono A3
 
-//Giroscopio
-MPU6050 mpu;
-//sensore temperatura e umidità
-SimpleDHT11 sensore_temp(temp);
-//display
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R0, U8X8_PIN_NONE);
-//encoder
-Encoder enc(clock, encdt);
-//gps
-TinyGPS gps;
-SoftwareSerial ss(RX, TX);
-//sensore di battiti
-MAX30105 particleSensor;
-//orologio
-RTC_DS1307 rtc;
-//wifi
-WiFiSSLClient wifi;
-
 long oldpos;          //posizione precdente encoder
 long pos = 1;         //attuale posizione encoder
 
@@ -117,21 +99,27 @@ char svminstr[3];
 int oresveglia = 25;      //ore a cui è impostata la sveglia (inizializzato a 25 quando non c'è nessuna sveglia)
 char svorestr[3];
 
-char ssid[] = SECRET_SSID;  //nome rete
-char pass[] = SECRET_PASS;  //password rete
-
 const char serverAddress[] = "script.google.com";  // server address
-String path = "/macros/s/AKfycbyI1p-j9sF1Y0IOqSKa3MiI7LeiccDpDSj9w3I7vVMoFqTjxeNI2fG8OFgAocO-giMi/exec";
-int port = 443;  //c'era scritto 8080 nell'esempio
-String contentType = "application/json";
+int port = 443;  //443 per https
 
+//Giroscopio
+MPU6050 mpu;
+//sensore temperatura e umidità
+SimpleDHT11 sensore_temp(temp);
+//display
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R0, U8X8_PIN_NONE);
+//encoder
+Encoder enc(clock, encdt);
+//gps
+TinyGPS gps;
+SoftwareSerial ss(RX, TX);
+//sensore di battiti
+MAX30105 particleSensor;
+//orologio
+RTC_DS1307 rtc;
+//wifi
+WiFiSSLClient wifi;
 HttpClient client = HttpClient(wifi, serverAddress, port);
-
-int status = WL_IDLE_STATUS;
-
-StaticJsonBuffer<200> jsonBuffer; //oggetti JSON
-String postData;
-JsonObject& root = jsonBuffer.createObject();
 
 void emergency() {        //funzione che rileva se viene schiacciato il pulsante di emergenza e richiama l'allarme (spammata ovunque)
   
@@ -141,56 +129,6 @@ void emergency() {        //funzione che rileva se viene schiacciato il pulsante
   allarme();
 }
 
-String ftoa(float number, uint8_t precision, uint8_t size) { //da float a str
-  // Based on mem,  16.07.2008
-  // http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num = 1207226548/6#6
-
-  // prints val with number of decimal places determine by precision
-  // precision is a number from 0 to 6 indicating the desired decimial places
-  // example: printDouble(3.1415, 2); // prints 3.14 (two decimal places)
-
-  // Added rounding, size and overflow #
-  // ftoa(343.1453, 2, 10) -> "    343.15"
-  // ftoa(343.1453, 4,  7) -> "#      "
-  // avenue33, April 10th, 2010
-
-  String s = "";
-
-  // Negative 
-  if (number < 0.0)  {
-    s = "-";
-    number = -number;
-  }
-
-  double rounding = 0.5;
-  for (uint8_t i = 0; i < precision; ++i)    rounding /= 10.0;
-
-  number += rounding;
-  s += String(uint16_t(number));  // prints the integer part
-
-  if(precision > 0) {
-    s += ".";                // prints the decimal point
-    uint32_t frac;
-    uint32_t mult = 1;
-    uint8_t padding = precision -1;
-    while(precision--)     mult *= 10;
-
-    frac = (number - uint16_t(number)) * mult;
-
-    uint32_t frac1 = frac;
-    while(frac1 /= 10)    padding--;
-    while(padding--)      s += "0";
-
-    s += String(frac,DEC) ;  // prints the fractional part
-  }
-
-  if (size>0)                // checks size
-    if (s.length()>size)        return("#");
-    else while(s.length()<size) s = " "+s;
-
-  return s;
-}
-
 void setup() {
 
   Serial.begin(9600); //inizializzazione della seriale a 9600 baud
@@ -198,26 +136,7 @@ void setup() {
   while (!Serial)     //attendi finché non si è inizializzata la seriale
     ;
 
-  Serial.begin(9600);
-
-  if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("Communication with WiFi module failed!");
-    // don't continue
-    while (true)
-      ;
-  }
-
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to Network named: ");
-    Serial.println(ssid);  // print the network name (SSID);
-
-    // Connect to WPA/WPA2 network:
-    status = WiFi.begin(ssid, pass);
-
-    delay(5000);
-  }
-
-  Serial.println("You're connected to the network");
+  connessione();
 
   Wire.begin();       //inizializza la comunicazione I2C per il sensore di battiti, il display, il giroscopio e l'orologio
 
@@ -244,11 +163,6 @@ void setup() {
   inizializza_data();         //inizializza orologio
 
   cambia_modalita();          //visualizza la schermata in cui selezionare la modalità
-}
-
-void convertidati(String chiave, String valore) { //crea JSON
-  root[chiave] = valore;
-  root.printTo(postData);
 }
 
 char costr[5];
@@ -328,28 +242,5 @@ void loop() {
 
   digitalWrite(led, LOW);       //spegni il led perché a volte rimane acceso dopo gli allarmi
 
-  client.post(path, contentType, postData);
-
-  postData = ""; //resetta i dati
-
-  convertidati("mode", "arduino");
-
-  convertidati("battiti", battitistr);
-  convertidati("spO2", sp02str);
-
-  itoa(co, costr, 10);
-  convertidati("co", costr);
-  itoa(nh3, nh3str, 10);
-  convertidati("nh3", nh3str);
-  no2str = ftoa(no2, 2, 4);
-  convertidati("no2", no2str);
-  ozonostr = ftoa(ozono, 2, 4);
-  convertidati("ozono", ozonostr);
-  
-  latstr = ftoa(lat, 6, 10);
-  convertidati("lat", latstr);
-  lonstr = ftoa(lon, 6, 10);
-  convertidati("lon", lonstr);
-
-  convertidati("allame", "false");
+  trasmetti();
 }

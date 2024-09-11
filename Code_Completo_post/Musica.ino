@@ -216,30 +216,7 @@ void allarme() {
 
     if (fermatialla == false) {  //se l'allarme non è stato disattivato invia una mail (codice per mail ancora da scrivere)
 
-      postData = "";  //resetta i dati
-
-      convertidati("mode", "arduino");
-
-      convertidati("battiti", battitistr);
-      convertidati("spO2", sp02str);
-
-      itoa(co, costr, 10);
-      convertidati("co", costr);
-      itoa(nh3, nh3str, 10);
-      convertidati("nh3", nh3str);
-      no2str = ftoa(no2, 2, 4);
-      convertidati("no2", no2str);
-      ozonostr = ftoa(ozono, 2, 4);
-      convertidati("ozono", ozonostr);
-
-      latstr = ftoa(lat, 6, 10);
-      convertidati("lat", latstr);
-      lonstr = ftoa(lon, 6, 10);
-      convertidati("lon", lonstr);
-
-      convertidati("allarme", "true"); //allare true
-      
-      client.post(path, contentType, postData);
+      trasmetti();
 
       display.clearBuffer();
 

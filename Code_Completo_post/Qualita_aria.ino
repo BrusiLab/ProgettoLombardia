@@ -1,9 +1,9 @@
 //hardaware: + al 5v, - al gnd, altri pin a pin analogici
 
-//valori normali CO: tra 1 e 4 ppm
-//valori normali NH3: 388 in media al giorno
-//valori normali NO2: max 0.1 ppm
-//valori normali ozono: max 0.05 ppm - media 0.03 ppm
+//valori normali CO: 100 ppm
+//valori normali NH3: 50 ppm
+//valori normali NO2: 1 ppm
+//valori normali ozono: 0.06 ppm 
 
 int timeraria(int ogni) {  //timer non bloccante per qualità aria
 
