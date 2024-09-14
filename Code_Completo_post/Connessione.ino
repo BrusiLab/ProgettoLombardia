@@ -86,7 +86,7 @@ void trasmetti(){
   convertidati("spo2", sp02str);
 
   itoa(co, costr, 10);
-  convertidati("co2", costr);
+  convertidati("co", costr);
   itoa(nh3, nh3str, 10);
   convertidati("nh3", nh3str);
   no2str = ftoa(no2, 2, 4);
