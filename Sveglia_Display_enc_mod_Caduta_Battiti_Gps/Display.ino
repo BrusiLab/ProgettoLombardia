@@ -307,13 +307,13 @@ void visualizza_battiti() {  //mostra a schermo il valore di battiti e ossigenaz
 
   display.setFont(u8g2_font_timB18_tr);
 
-  if (heartRate < 30 || heartRate > 250) {  //se i valori non hanno senso
+  if (beatAvg < 30 || beatAvg > 250) {  //se i valori non hanno senso
     display.drawStr(75, 25, "--");
-  } else if (heartRate >= 100) {      //impagina diversamente i valori se hanno 2 o 3 cifre
-    itoa(heartRate, battitistr, 10);  //itoa serve per trasformare i dati da intero a stringa
+  } else if (beatAvg >= 100) {      //impagina diversamente i valori se hanno 2 o 3 cifre
+    itoa(beatAvg, battitistr, 10);  //itoa serve per trasformare i dati da intero a stringa
     display.drawStr(70, 25, battitistr);
   } else {  //se i dati hanno senso
-    itoa(heartRate, battitistr, 10);
+    itoa(beatAvg, battitistr, 10);
     display.drawStr(80, 25, battitistr);
   }
 
@@ -776,13 +776,13 @@ void visualizza_battiti() {
 
   display.setFont(u8g2_font_timB18_tr);
 
-  if (heartRate < 30 || heartRate > 250) {
+  if (beatAvg < 30 || beatAvg > 250) {
     display.drawStr(75, 25, "--");
-  } else if (heartRate >= 100) {
-    itoa(heartRate, battitistr, 10);
+  } else if (beatAvg >= 100) {
+    itoa(beatAvg, battitistr, 10);
     display.drawStr(70, 25, battitistr);
   } else {  //se i dati hanno senso
-    itoa(heartRate, battitistr, 10);
+    itoa(beatAvg, battitistr, 10);
     display.drawStr(80, 25, battitistr);
   }
 

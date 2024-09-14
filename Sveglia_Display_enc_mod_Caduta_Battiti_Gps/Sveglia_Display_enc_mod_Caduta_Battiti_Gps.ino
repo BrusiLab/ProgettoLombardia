@@ -18,6 +18,7 @@
 //Battiti
 #include "MAX30105.h"
 #include "spo2_algorithm.h"
+#include "heartRate.h"
 //Data e ora
 #include <RTClib.h>
 
@@ -121,7 +122,7 @@ void setup() {
   while (!Serial)     //attendi finché non si è inizializzata la seriale
     ;
 
-  Wire.begin();       //inizializza la comunicazione I2C per il sensore di battiti, il display, il giroscopio e l'orologio
+  Wire.setClock(100000);       //inizializza la comunicazione I2C per il sensore di battiti, il display, il giroscopio e l'orologio
 
   ss.begin(9600);     //inizializza la software serial per il gps a 9600 baud
 

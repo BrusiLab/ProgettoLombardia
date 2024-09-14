@@ -129,6 +129,24 @@ void emergency() {        //funzione che rileva se viene schiacciato il pulsante
   allarme();
 }
 
+int timertrasmissione(int ogniquantotrasmetteredati) {  //timer non bloccante per la temperatura
+
+  static unsigned long tempodiinizio = 0;
+  static unsigned long tempotrascorso;
+  int risultatodeltimer = 0;
+
+  emergency();
+
+  tempotrascorso = millis() - tempodiinizio;
+
+  if (tempotrascorso >= ogniquantotrasmetteredati) {
+    tempodiinizio = millis();
+    risultatodeltimer = 1;
+  }
+
+  return risultatodeltimer;
+}
+
 void setup() {
 
   Serial.begin(9600); //inizializzazione della seriale a 9600 baud
@@ -242,5 +260,7 @@ void loop() {
 
   digitalWrite(led, LOW);       //spegni il led perché a volte rimane acceso dopo gli allarmi
 
-  trasmetti();
+  if(timertrasmissione(300000){
+    trasmetti();                //trasmetti i dati all'app ogni 5 minuti
+  }
 }

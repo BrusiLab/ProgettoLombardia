@@ -10,6 +10,9 @@ StaticJsonBuffer<200> jsonBuffer; //oggetti JSON
 String postData;
 JsonObject& root = jsonBuffer.createObject();
 
+String tempconnesione;
+String humconnessione;
+
 String ftoa(float number, uint8_t precision, uint8_t size) { //da float a str
 
   String s = "";
@@ -79,27 +82,32 @@ void trasmetti(){
   
   convertidati("mode", "arduino");
 
-  convertidati("battiti", battitistr);
-  convertidati("spO2", sp02str);
+  convertidati("bpm", battitistr);
+  convertidati("spo2", sp02str);
 
   itoa(co, costr, 10);
-  convertidati("co", costr);
+  convertidati("co2", costr);
   itoa(nh3, nh3str, 10);
   convertidati("nh3", nh3str);
   no2str = ftoa(no2, 2, 4);
   convertidati("no2", no2str);
   ozonostr = ftoa(ozono, 2, 4);
-  convertidati("ozono", ozonostr);
+  convertidati("o3", ozonostr);
   
   latstr = ftoa(lat, 6, 10);
   convertidati("lat", latstr);
   lonstr = ftoa(lon, 6, 10);
   convertidati("lon", lonstr);
 
+  tempconnessione = ftoa(temperature, 1, 4);
+  convertidati("temp", tempconnessione);
+  humconnessione = ftoa(humidity, 1, 4);
+  convertidati("hum", humconnessione);
+
   if(pericolo == true){
-    convertidati("allame", "true");
+    convertidati("alert", "true");
   } else {
-    convertidati("allame", "false");
+    convertidati("alert", "false");
   }
   
   client.post(path, contentType, postData);
