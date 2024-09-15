@@ -22,6 +22,10 @@ float ax, ay, az;
 
 bool caduta = false;
 
+bool valorepositivo = false;
+bool valorenegativo = false;
+int passi = 0;
+
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
@@ -119,4 +123,15 @@ void verifica_caduta() {
     }
   }
 
+  if(gy > 2){
+    valorepositivo = true;
+  } else if(gy <-2) {
+    valorenegativo = true;
+  }
+
+  if(valorepositivo == true && valorenegativo == true){
+    passi++;
+    valorepositivo = false;
+    valorenegativo = false;
+  }
 }

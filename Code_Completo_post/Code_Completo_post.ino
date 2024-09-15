@@ -94,6 +94,11 @@ char ggstr[3];
 char mesestr[3];
 char annostr[3];
 
+byte temperature = 0;
+char tempstr[3];
+byte humidity = 0;
+char humstr[3];
+
 int minutisveglia = 0;    //minuti a cui è impostata la sveglia
 char svminstr[3];
 int oresveglia = 25;      //ore a cui è impostata la sveglia (inizializzato a 25 quando non c'è nessuna sveglia)
@@ -145,6 +150,24 @@ int timertrasmissione(int ogniquantotrasmetteredati) {  //timer non bloccante pe
   }
 
   return risultatodeltimer;
+}
+
+int timerricezione(int ogniquantoricevereedati) {  //timer non bloccante per la temperatura
+
+  static unsigned long tempinizio = 0;
+  static unsigned long tempopassatoo;
+  int risultatodeltimernb = 0;
+
+  emergency();
+
+  tempopassatoo = millis() - tempinizio;
+
+  if (tempopassatoo >= ogniquantoricevereedati) {
+    tempinizio = millis();
+    risultatodeltimernb = 1;
+  }
+
+  return risultatodeltimernb;
 }
 
 void setup() {
@@ -260,7 +283,11 @@ void loop() {
 
   digitalWrite(led, LOW);       //spegni il led perché a volte rimane acceso dopo gli allarmi
 
-  if(timertrasmissione(300000){
+  if(timertrasmissione(300000)){
     trasmetti();                //trasmetti i dati all'app ogni 5 minuti
+  }
+
+  if(timerricezione(55000)){
+    ricevi();
   }
 }

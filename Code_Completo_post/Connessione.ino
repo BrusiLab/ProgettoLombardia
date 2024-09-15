@@ -10,7 +10,7 @@ StaticJsonBuffer<200> jsonBuffer; //oggetti JSON
 String postData;
 JsonObject& root = jsonBuffer.createObject();
 
-String tempconnesione;
+String tempconnessione;
 String humconnessione;
 
 String ftoa(float number, uint8_t precision, uint8_t size) { //da float a str
@@ -53,6 +53,7 @@ String ftoa(float number, uint8_t precision, uint8_t size) { //da float a str
 }
 
 void connessione(){
+
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
     // don't continue
@@ -113,4 +114,36 @@ void trasmetti(){
   client.post(path, contentType, postData);
 
   postData = ""; //resetta i dati
+}
+
+void ricevi(){
+  
+  Serial.println("making GET request");
+
+  client.get("/macros/s/AKfycbyI1p-j9sF1Y0IOqSKa3MiI7LeiccDpDSj9w3I7vVMoFqTjxeNI2fG8OFgAocO-giMi/exec");
+
+  // read the status code and body of the response
+  //int statusCode = client.responseStatusCode();
+  String response = client.responseBody();
+
+  for (int abc = 0; abc < response.length(); abc++) {
+
+    if (response[abc] == 's' && response[abc + 1] == 'v' && response[abc + 2] == 'e' && response[abc + 3] == 'g' && response[abc + 4] == 'l' && response[abc + 5] == 'i' && response[abc + 6] == 'a') {
+      
+      Serial.println("trovato");
+      
+      if(response[abc+11]=='t'){
+        orario = true;
+      } else {
+        orario = false;
+      }
+
+      break;
+    }
+  }
+
+  //Serial.print("Status code: ");
+  //Serial.println(statusCode);
+
+  Serial.println(orario);
 }

@@ -112,11 +112,6 @@ const byte calendario[32] PROGMEM =  //disegno calendario (data)
     B11111100, B00111111,
     B00000000, B00000000 };
 
-byte temperature = 0;
-char tempstr[3];
-byte humidity = 0;
-char humstr[3];
-
 int premuto() {  //funzione che rileva se l'encoder viene premuto (restituisce true se vero)
 
   emergency();
